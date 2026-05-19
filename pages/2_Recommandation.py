@@ -657,7 +657,3 @@ for rank, (col, (_, r)) in enumerate(zip(cols, recos.iterrows()), start=1):
 # Pied de page discret
 # =====================================================================
 st.markdown("<div style='height:2rem'></div>", unsafe_allow_html=True)
-st.caption(
-    f"{len(df):,} films indexés · Modèle NearestNeighbors (cosine) sur Genres TF-IDF + métriques normalisées."
-    .replace(",", " ")
-)
