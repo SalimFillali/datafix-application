@@ -1,12 +1,5 @@
 """Page Recommandation - DATAFIX (style plateforme cinéma).
 
-- Hero plein écran avec backdrop flouté
-- Carrousels horizontaux scrollables
-- Hover scale + glow doré
-- Click sur affiche => sélection via query param
-- Recherche premium
-- Moteur ML : TF-IDF (Genres) + MinMax (Pop/Note/Votes) + NearestNeighbors
-- Enrichissement live : synopsis, casting, trailer, backdrop (API TMDB)
 """
 
 from __future__ import annotations
