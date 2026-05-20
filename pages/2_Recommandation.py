@@ -30,6 +30,7 @@ st.set_page_config(
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "df_film.csv"
+PEOPLE_PATH = BASE_DIR / "data" / "df_people_details.csv"
 LOGO = BASE_DIR / "asset" / "logo.png"
 
 TMDB_BEARER = (
@@ -436,14 +437,53 @@ section[data-testid="stSidebar"] .stCaption {{
     margin: 0 0 0.5rem 0;
 }}
 .detail-info p {{ color: #D3D3D6; line-height: 1.6; margin: 0 0 1rem 0; }}
-.cast-row {{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }}
-.cast-chip {{
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #E2E2E5;
-    padding: 5px 10px; border-radius: 999px;
-    font-size: 0.82rem;
+.cast-row {{
+    display: flex; flex-wrap: wrap; gap: 14px;
+    margin-bottom: 1.2rem;
 }}
+.cast-card {{
+    width: 92px;
+    text-align: center;
+    transition: transform .25s ease;
+}}
+.cast-card:hover {{ transform: translateY(-4px); }}
+.cast-photo {{
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    background: #181820 no-repeat center/cover;
+    border: 2px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    transition: border-color .25s ease;
+}}
+.cast-card:hover .cast-photo {{ border-color: {GOLD}; }}
+.cast-name {{
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: #E8E8EA;
+    font-weight: 700;
+    line-height: 1.2;
+    /* clamp 2 lignes */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}}
+.cast-role {{
+    font-size: 0.72rem;
+    color: #8e8e96;
+    margin-top: 2px;
+    font-style: italic;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}}
+.director-line {{
+    color: #B8B8B8;
+    font-size: 0.95rem;
+    margin: -0.4rem 0 1rem 0;
+}}
+.director-line b {{ color: {GOLD}; font-weight: 700; }}
 .metric-row {{
     display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
     margin-top: 0.7rem;
@@ -566,35 +606,35 @@ def fun_fact(row: pd.Series) -> str:
 
 
 # =====================================================================
-# API TMDB (cache 24h)
+# API TMDB (uniquement pour backdrop + trailer manquant — cache 24h)
+# Le synopsis et le casting viennent maintenant du dataset local.
 # =====================================================================
 @st.cache_data(show_spinner=False, ttl=60 * 60 * 24)
-def tmdb_details(tmdb_id: int) -> dict:
-    """Synopsis + tagline + backdrop + trailer_key + cast (top 5)."""
+def tmdb_details(movie_id: int) -> dict:
+    """Backdrop + poster_path + trailer_key + overview FR via TMDB (fallback)."""
     out = {
-        "overview": None,
-        "tagline": None,
         "backdrop_path": None,
+        "poster_path": None,
         "trailer_key": None,
-        "cast": [],
+        "overview": None,
     }
-    if not tmdb_id or pd.isna(tmdb_id):
+    if not movie_id or pd.isna(movie_id):
         return out
     try:
         r = requests.get(
-            f"https://api.themoviedb.org/3/movie/{int(tmdb_id)}?language=fr-FR",
+            f"https://api.themoviedb.org/3/movie/{int(movie_id)}?language=fr-FR",
             headers=TMDB_HEADERS, timeout=5,
         )
         if r.ok:
             j = r.json()
-            out["overview"] = (j.get("overview") or "").strip() or None
-            out["tagline"] = (j.get("tagline") or "").strip() or None
             out["backdrop_path"] = j.get("backdrop_path") or None
+            out["poster_path"] = j.get("poster_path") or None
+            ov = (j.get("overview") or "").strip()
+            out["overview"] = ov or None
 
-        # Vidéos (FR puis EN)
         for lang in ("fr-FR", "en-US"):
             rv = requests.get(
-                f"https://api.themoviedb.org/3/movie/{int(tmdb_id)}/videos?language={lang}",
+                f"https://api.themoviedb.org/3/movie/{int(movie_id)}/videos?language={lang}",
                 headers=TMDB_HEADERS, timeout=5,
             )
             if not rv.ok:
@@ -607,42 +647,86 @@ def tmdb_details(tmdb_id: int) -> dict:
                 yt.sort(key=lambda v: (v.get("type") != "Trailer", not v.get("official", False)))
                 out["trailer_key"] = yt[0].get("key")
                 break
-
-        # Casting
-        rc = requests.get(
-            f"https://api.themoviedb.org/3/movie/{int(tmdb_id)}/credits?language=fr-FR",
-            headers=TMDB_HEADERS, timeout=5,
-        )
-        if rc.ok:
-            cast = rc.json().get("cast", [])
-            out["cast"] = [c.get("name") for c in cast[:5] if c.get("name")]
     except requests.RequestException:
         pass
     return out
 
 
 def backdrop_url(film: pd.Series) -> str:
-    api = tmdb_details(film.get("id_tmdb_x"))
+    api = tmdb_details(film.get("id"))
     if api.get("backdrop_path"):
         return f"https://image.tmdb.org/t/p/original{api['backdrop_path']}"
-    # fallback : poster
+    # fallback : poster FR TMDB > poster dataset
+    if api.get("poster_path"):
+        return f"https://image.tmdb.org/t/p/w780{api['poster_path']}"
     p = film.get("poster_url")
     return p if isinstance(p, str) and p.startswith("http") else ""
+
+
+def best_poster(film: pd.Series) -> str:
+    """Poster FR TMDB en priorité, sinon poster_url du dataset."""
+    api = tmdb_details(film.get("id"))
+    if api.get("poster_path"):
+        return f"https://image.tmdb.org/t/p/w500{api['poster_path']}"
+    p = film.get("poster_url")
+    if isinstance(p, str) and p.startswith("http"):
+        return p
+    return "https://via.placeholder.com/500x750/111111/F5C518?text=No+poster"
 
 
 def best_youtube_key(row: pd.Series) -> str | None:
     k = yt_id(row.get("youtube_url"))
     if k:
         return k
-    return tmdb_details(row.get("id_tmdb_x")).get("trailer_key")
+    return tmdb_details(row.get("id")).get("trailer_key")
 
 
 def best_overview(row: pd.Series) -> str | None:
-    return tmdb_details(row.get("id_tmdb_x")).get("overview")
+    """Synopsis FR du dataset, sinon EN, sinon fallback API TMDB."""
+    fr = row.get("Synopsis_fr")
+    if isinstance(fr, str) and fr.strip():
+        return fr.strip()
+    en = row.get("Synopsis")
+    if isinstance(en, str) and en.strip():
+        return en.strip()
+    # Fallback API TMDB (couvre les ~110 films sans synopsis dans le dataset)
+    api = tmdb_details(row.get("id"))
+    return api.get("overview")
 
 
-def best_cast(row: pd.Series) -> list[str]:
-    return tmdb_details(row.get("id_tmdb_x")).get("cast", []) or []
+def best_cast(row: pd.Series, n: int = 6) -> list[dict]:
+    """Casting principal depuis df_people_details (acteurs triés par popularité)."""
+    movie_id = row.get("id")
+    if pd.isna(movie_id):
+        return []
+    people = load_people()
+    cast = people[
+        (people["movie_id"] == int(movie_id))
+        & (people["Departement"] == "Acting")
+    ].sort_values("Popularité", ascending=False).head(n)
+    return [
+        {
+            "name": r["Prénom"],
+            "role": r.get("NomPersonnage") or "",
+            "photo": r.get("profile_url") or "",
+        }
+        for _, r in cast.iterrows()
+    ]
+
+
+def best_director(row: pd.Series) -> str | None:
+    """Réalisateur (Directing) — premier de la liste."""
+    movie_id = row.get("id")
+    if pd.isna(movie_id):
+        return None
+    people = load_people()
+    dirs = people[
+        (people["movie_id"] == int(movie_id))
+        & (people["Departement"] == "Directing")
+    ].sort_values("Popularité", ascending=False)
+    if dirs.empty:
+        return None
+    return dirs.iloc[0]["Prénom"]
 
 
 # =====================================================================
@@ -653,6 +737,13 @@ def load_data() -> pd.DataFrame:
     df = pd.read_csv(DATA_PATH)
     df = df.drop_duplicates(subset=["Titre"], keep="first").reset_index(drop=True)
     return df
+
+
+@st.cache_data(show_spinner=False)
+def load_people() -> pd.DataFrame:
+    p = pd.read_csv(PEOPLE_PATH)
+    # On garde tout (Acting + Directing) — on filtre au moment de l'usage
+    return p
 
 
 @st.cache_resource(show_spinner=False)
@@ -819,12 +910,33 @@ if search_value and search_value.strip():
 # Bloc détail du film sélectionné
 # =====================================================================
 st.markdown("<div id='detail'></div>", unsafe_allow_html=True)
-poster_main = film.get("poster_url") or ""
-cast_main = best_cast(film)
+poster_main = best_poster(film)
+cast_main = best_cast(film, n=6)
+director_main = best_director(film)
+
+# Cast cards (photo ronde + nom + rôle)
 cast_html = ""
 if cast_main:
-    chips = "".join(f"<span class='cast-chip'>{c}</span>" for c in cast_main)
-    cast_html = f"<div class='cast-row'>{chips}</div>"
+    cards = []
+    for p in cast_main:
+        photo = p["photo"] if isinstance(p["photo"], str) and p["photo"].startswith("http") \
+            else "https://via.placeholder.com/200x200/181820/F5C518?text=%20"
+        name = (p["name"] or "").replace("'", "&#39;")
+        role = (p["role"] or "").replace("'", "&#39;")
+        role_html = f"<div class='cast-role'>{role}</div>" if role else ""
+        cards.append(
+            f"<div class='cast-card'>"
+            f"<div class='cast-photo' style=\"background-image:url('{photo}')\"></div>"
+            f"<div class='cast-name'>{name}</div>"
+            f"{role_html}"
+            f"</div>"
+        )
+    cast_html = "<div class='cast-row'>" + "".join(cards) + "</div>"
+
+director_html = (
+    f"<div class='director-line'>Réalisation : <b>{director_main}</b></div>"
+    if director_main else ""
+)
 
 metrics_html = (
     "<div class='metric-row'>"
@@ -845,6 +957,7 @@ detail_html = (
     '<div class="detail-info">'
     '<h2>Synopsis</h2>'
     f'<p>{overview_main}</p>'
+    f'{director_html}'
     f'{cast_block}'
     '<h2>En chiffres</h2>'
     f'{metrics_html}'
