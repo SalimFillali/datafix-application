@@ -617,6 +617,8 @@ def tmdb_details(movie_id: int) -> dict:
         "poster_path": None,
         "trailer_key": None,
         "overview": None,
+        "cast": [],          # liste de dicts {name, role, photo} ordonnée
+        "directors": [],     # liste de noms
     }
     if not movie_id or pd.isna(movie_id):
         return out
@@ -647,6 +649,30 @@ def tmdb_details(movie_id: int) -> dict:
                 yt.sort(key=lambda v: (v.get("type") != "Trailer", not v.get("official", False)))
                 out["trailer_key"] = yt[0].get("key")
                 break
+
+        # Credits : casting et réalisateurs dans l'ordre OFFICIEL
+        rc = requests.get(
+            f"https://api.themoviedb.org/3/movie/{int(movie_id)}/credits?language=fr-FR",
+            headers=TMDB_HEADERS, timeout=5,
+        )
+        if rc.ok:
+            jc = rc.json()
+            cast_sorted = sorted(jc.get("cast", []), key=lambda c: c.get("order", 999))
+            out["cast"] = [
+                {
+                    "name": c.get("name") or "",
+                    "role": c.get("character") or "",
+                    "photo": (
+                        f"https://image.tmdb.org/t/p/w300{c['profile_path']}"
+                        if c.get("profile_path") else ""
+                    ),
+                }
+                for c in cast_sorted if c.get("name")
+            ]
+            out["directors"] = [
+                c.get("name") for c in jc.get("crew", [])
+                if c.get("job") == "Director" and c.get("name")
+            ]
     except requests.RequestException:
         pass
     return out
@@ -695,10 +721,16 @@ def best_overview(row: pd.Series) -> str | None:
 
 
 def best_cast(row: pd.Series, n: int = 6) -> list[dict]:
-    """Casting principal depuis df_people_details (acteurs triés par popularité)."""
+    """Casting principal — TMDB (ordre officiel du générique) en priorité,
+    fallback df_people_details local (trié par popularité)."""
     movie_id = row.get("id")
     if pd.isna(movie_id):
         return []
+    # 1. API TMDB : ordre officiel du générique (order=0,1,2…)
+    api = tmdb_details(movie_id)
+    if api.get("cast"):
+        return api["cast"][:n]
+    # 2. Fallback dataset local
     people = load_people()
     cast = people[
         (people["movie_id"] == int(movie_id))
@@ -715,10 +747,16 @@ def best_cast(row: pd.Series, n: int = 6) -> list[dict]:
 
 
 def best_director(row: pd.Series) -> str | None:
-    """Réalisateur (Directing) — premier de la liste."""
+    """Réalisateur — TMDB en priorité (job == 'Director'),
+    fallback dataset local."""
     movie_id = row.get("id")
     if pd.isna(movie_id):
         return None
+    api = tmdb_details(movie_id)
+    if api.get("directors"):
+        # Joindre s'il y a plusieurs co-réalisateurs (ex: Toledano & Nakache)
+        return " & ".join(api["directors"][:2])
+    # Fallback dataset local
     people = load_people()
     dirs = people[
         (people["movie_id"] == int(movie_id))
