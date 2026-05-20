@@ -450,10 +450,22 @@ section[data-testid="stSidebar"] .stCaption {{
 .cast-photo {{
     width: 92px; height: 92px;
     border-radius: 50%;
-    background: #181820 no-repeat center/cover;
+    overflow: hidden;
+    background: #181820;
     border: 2px solid rgba(255,255,255,0.08);
     box-shadow: 0 6px 18px rgba(0,0,0,0.45);
     transition: border-color .25s ease;
+    display: flex; align-items: center; justify-content: center;
+}}
+.cast-photo img {{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+}}
+.cast-photo .ph-fallback {{
+    color: #555;
+    font-size: 1.6rem;
+    font-weight: 800;
 }}
 .cast-card:hover .cast-photo {{ border-color: {GOLD}; }}
 .cast-name {{
@@ -957,14 +969,18 @@ cast_html = ""
 if cast_main:
     cards = []
     for p in cast_main:
-        photo = p["photo"] if isinstance(p["photo"], str) and p["photo"].startswith("http") \
-            else "https://via.placeholder.com/200x200/181820/F5C518?text=%20"
         name = (p["name"] or "").replace("'", "&#39;")
         role = (p["role"] or "").replace("'", "&#39;")
+        photo = p["photo"]
+        if isinstance(photo, str) and photo.startswith("http"):
+            photo_html = f'<img src="{photo}" alt="{name}" loading="lazy">'
+        else:
+            initial = (name[:1] or "?").upper()
+            photo_html = f'<span class="ph-fallback">{initial}</span>'
         role_html = f"<div class='cast-role'>{role}</div>" if role else ""
         cards.append(
             f"<div class='cast-card'>"
-            f"<div class='cast-photo' style=\"background-image:url('{photo}')\"></div>"
+            f"<div class='cast-photo'>{photo_html}</div>"
             f"<div class='cast-name'>{name}</div>"
             f"{role_html}"
             f"</div>"
