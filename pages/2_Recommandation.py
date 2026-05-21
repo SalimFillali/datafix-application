@@ -1090,7 +1090,6 @@ annees_80 = df[(df["Année"] >= 1980) & (df["Année"] <= 1989)] \
 recents = df[df["Année"] >= 2020].sort_values("Popularité", ascending=False).head(15)
 pepites = df[
     (df["Note"] >= 7.0)
-    (df["Note"] >= 7.0)
     & (df["Votes"].fillna(0) < 200)
     & (df["Votes"].fillna(0) >= 5)
 ].sort_values("Note", ascending=False).head(15)
