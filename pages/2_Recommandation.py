@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import re
 import urllib.parse
@@ -712,6 +713,39 @@ def best_poster(film: pd.Series) -> str:
     return "https://via.placeholder.com/500x750/111111/F5C518?text=No+poster"
 
 
+@st.cache_data(show_spinner=False, ttl=60 * 60 * 24)
+def prefetch_posters_fr(ids_tuple: tuple) -> dict:
+    """Pré-charge en parallèle les poster_paths FR depuis TMDB pour une liste d'IDs.
+    Retourne {movie_id: poster_url_fr}. Cache 24h.
+    """
+    def _one(mid):
+        try:
+            r = requests.get(
+                f"https://api.themoviedb.org/3/movie/{int(mid)}",
+                headers=TMDB_HEADERS,
+                params={"language": "fr-FR"},
+                timeout=4,
+            )
+            if r.status_code == 200:
+                p = r.json().get("poster_path")
+                if p:
+                    return int(mid), f"https://image.tmdb.org/t/p/w500{p}"
+        except Exception:
+            pass
+        return int(mid), None
+
+    out: dict = {}
+    with ThreadPoolExecutor(max_workers=20) as ex:
+        for mid, url in ex.map(_one, ids_tuple):
+            if url:
+                out[mid] = url
+    return out
+
+
+# Map global rempli avant rendu des carrousels, lu par card_html
+POSTER_FR_MAP: dict = {}
+
+
 def best_youtube_key(row: pd.Series) -> str | None:
     k = yt_id(row.get("youtube_url"))
     if k:
@@ -845,7 +879,14 @@ film = df[df["Titre"] == sel_title].iloc[0]
 def card_html(row, rank=None):
     title = str(row["Titre"]).replace("'", "&#39;")
     href = "?film=" + urllib.parse.quote(str(row["Titre"]))
-    poster = row.get("poster_url") or ""
+    # 1) Poster FR depuis le pré-fetch TMDB, 2) fallback dataset, 3) placeholder
+    poster = ""
+    try:
+        poster = POSTER_FR_MAP.get(int(row["id"]), "") or ""
+    except Exception:
+        pass
+    if not poster:
+        poster = row.get("poster_url") or ""
     if not isinstance(poster, str) or not poster.startswith("http"):
         poster = "https://via.placeholder.com/500x750/111111/F5C518?text=No+poster"
     note = float(row.get("Note") or 0)
@@ -1030,61 +1071,65 @@ if yt_main:
 
 
 # =====================================================================
-# Carrousel recommandations ML
+# Carrousels thématiques (préparés AVANT le pré-fetch des posters FR)
 # =====================================================================
-st.markdown("<div id='recommandations'></div>", unsafe_allow_html=True)
+def has_min_votes(d, n=200):
+    return d[d["Votes"].fillna(0) >= n]
+
+
 recos = reco_indices(sel_title, df, INDICES, n=10)
+tendances = df.sort_values("Popularité", ascending=False).head(15)
+mieux_notes = has_min_votes(df, 300).sort_values("Note", ascending=False).head(15)
+cultes = has_min_votes(df, 500)
+cultes = cultes[(cultes["Année"] >= 1970) & (cultes["Année"] <= 2010)]
+cultes = cultes.sort_values(["Note", "Votes"], ascending=False).head(15)
+annees_90 = df[(df["Année"] >= 1990) & (df["Année"] <= 1999)] \
+    .sort_values(["Popularité", "Note"], ascending=False).head(15)
+annees_80 = df[(df["Année"] >= 1980) & (df["Année"] <= 1989)] \
+    .sort_values(["Popularité", "Note"], ascending=False).head(15)
+recents = df[df["Année"] >= 2020].sort_values("Popularité", ascending=False).head(15)
+pepites = df[
+    (df["Note"] >= 7.0)
+    (df["Note"] >= 7.0)
+    & (df["Votes"].fillna(0) < 200)
+    & (df["Votes"].fillna(0) >= 5)
+].sort_values("Note", ascending=False).head(15)
+
+# Pré-fetch parallèle des posters FR pour TOUS les films affichés (caché 24h)
+_all_ids = set()
+for _block in (recos, tendances, mieux_notes, cultes, annees_90, annees_80, recents, pepites):
+    if _block is not None and not _block.empty:
+        for _v in _block["id"].dropna().tolist():
+            try:
+                _all_ids.add(int(_v))
+            except Exception:
+                pass
+POSTER_FR_MAP = prefetch_posters_fr(tuple(sorted(_all_ids)))
+
+# ─── Rendu des carrousels ────────────────────────────────────
+st.markdown("<div id='recommandations'></div>", unsafe_allow_html=True)
 render_row(
     "Films similaires",
     recos,
     subtitle="Sélectionnés par le moteur ML à partir des genres et des notes",
     ranked=True,
 )
-
-
-# =====================================================================
-# Carrousels thématiques
-# =====================================================================
-def has_min_votes(d, n=200):
-    return d[d["Votes"].fillna(0) >= n]
-
-
-tendances = df.sort_values("Popularité", ascending=False).head(15)
 render_row("Tendances du moment", tendances,
            subtitle="Les comédies dont tout le monde parle")
-
-mieux_notes = has_min_votes(df, 300).sort_values("Note", ascending=False).head(15)
 render_row("Les mieux notés", mieux_notes,
            subtitle="Sélection critique du catalogue", ranked=True)
-
-cultes = has_min_votes(df, 500)
-cultes = cultes[(cultes["Année"] >= 1970) & (cultes["Année"] <= 2010)]
-cultes = cultes.sort_values(["Note", "Votes"], ascending=False).head(15)
 render_row("Comédies cultes", cultes,
            subtitle="Les incontournables qui ont marqué le cinéma français")
-
-annees_90 = df[(df["Année"] >= 1990) & (df["Année"] <= 1999)] \
-    .sort_values(["Popularité", "Note"], ascending=False).head(15)
 render_row("Années 90", annees_90,
            subtitle="Retour vers la décennie dorée de la comédie FR")
-
-annees_80 = df[(df["Année"] >= 1980) & (df["Année"] <= 1989)] \
-    .sort_values(["Popularité", "Note"], ascending=False).head(15)
 render_row("Années 80", annees_80,
            subtitle="Le grand boum de la comédie populaire")
 
-recents = df[df["Année"] >= 2020].sort_values("Popularité", ascending=False).head(15)
 if not recents.empty:
     render_row("Récemment ajoutés", recents, subtitle="Sorties après 2020")
 
-pepites = df[
-    (df["Note"] >= 7.0)
-    & (df["Votes"].fillna(0) < 200)
-    & (df["Votes"].fillna(0) >= 5)
-].sort_values("Note", ascending=False).head(15)
 if not pepites.empty:
     render_row("Pépites cachées", pepites,
                subtitle="Bien notés, peu connus — à découvrir")
-
 
 st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)

@@ -67,7 +67,8 @@ def load_df() -> pd.DataFrame:
 
 
 @st.cache_data(ttl=86400)
-def tmdb_backdrop(movie_id: int) -> str:
+def tmdb_paths(movie_id: int) -> dict:
+    """Retourne {'backdrop': url, 'poster': url} en version française."""
     try:
         r = requests.get(
             f"https://api.themoviedb.org/3/movie/{int(movie_id)}",
@@ -76,12 +77,20 @@ def tmdb_backdrop(movie_id: int) -> str:
             timeout=5,
         )
         if r.status_code == 200:
-            p = r.json().get("backdrop_path")
-            if p:
-                return f"https://image.tmdb.org/t/p/original{p}"
+            d = r.json()
+            b = d.get("backdrop_path") or ""
+            p = d.get("poster_path") or ""
+            return {
+                "backdrop": f"https://image.tmdb.org/t/p/original{b}" if b else "",
+                "poster": f"https://image.tmdb.org/t/p/w500{p}" if p else "",
+            }
     except Exception:
         pass
-    return ""
+    return {"backdrop": "", "poster": ""}
+
+
+def tmdb_backdrop(movie_id: int) -> str:
+    return tmdb_paths(movie_id).get("backdrop", "")
 
 
 def find_row(df: pd.DataFrame, title: str):
@@ -96,6 +105,19 @@ def safe_poster(row) -> str:
         return ""
     p = row.get("poster_url", "")
     return p if isinstance(p, str) else ""
+
+
+def best_poster(row) -> str:
+    """Priorise le poster TMDB en version française, fallback dataset."""
+    if row is None:
+        return ""
+    try:
+        p = tmdb_paths(int(row["id"])).get("poster", "")
+        if p:
+            return p
+    except Exception:
+        pass
+    return safe_poster(row)
 
 
 def creuse_image_url() -> str:
@@ -508,7 +530,7 @@ st.markdown(
 
 # ─── Helpers card ────────────────────────────────────────────
 def render_card(row, rank=None) -> str:
-    poster = safe_poster(row)
+    poster = best_poster(row)
     title = str(row["Titre"]).replace('"', "'")
     annee = ""
     if pd.notna(row.get("Année")):
@@ -619,7 +641,7 @@ for t in EXPRESS_CHOICES:
     r = find_row(df, t)
     if r is None:
         continue
-    poster = safe_poster(r)
+    poster = best_poster(r)
     title = str(r["Titre"]).replace('"', "'")
     href = f"Recommandation?film={quote(str(r['Titre']))}"
     img = f'<img src="{poster}" alt="{title}" loading="lazy"/>' if poster else ""
