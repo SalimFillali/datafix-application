@@ -673,7 +673,7 @@ st.markdown(
   <div class="footer-links">
     <a href="Recommandation" target="_self">Catalogue</a>
     <a href="Recommandation" target="_self">Recommandation</a>
-    <a href="Recommandation" target="_self">À propos</a>
+    <a href="A_propos" target="_self">À propos</a>
   </div>
   <div class="footer-bottom">La comédie française, sublimée par la data.</div>
 </div>
