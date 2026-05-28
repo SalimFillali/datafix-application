@@ -10,7 +10,7 @@ import streamlit as st
 st.set_page_config(
     page_title="DATAFIX – À propos",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -162,10 +162,37 @@ st.markdown(
 }}
 .stApp {{ background: var(--bg-deep); color: var(--txt); }}
 [data-testid="stHeader"] {{ background: transparent; }}
-[data-testid="stToolbar"] {{ display: none; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}
+
+/* NAVBAR custom (toujours visible) */
+.topnav {{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(15,15,18,0.78);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}}
+.topnav-inner {{
+  max-width: 1400px; margin: 0 auto;
+  padding: 0.85rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}}
+.topnav-brand {{
+  color: var(--gold) !important; font-weight: 900;
+  letter-spacing: 0.18em; font-size: 1rem;
+  text-decoration: none !important;
+}}
+.topnav-links {{ display: flex; gap: 2rem; }}
+.topnav-links a {{
+  color: #D8D8DC !important; text-decoration: none !important;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem; border-radius: 8px;
+  transition: all 0.2s ease;
+}}
+.topnav-links a:hover {{ color: var(--gold) !important; background: rgba(245,197,24,0.08); }}
+.topnav-links a.active {{ color: var(--gold) !important; background: rgba(245,197,24,0.12); }}
 
 /* ============ HERO ============ */
 .hero {{
@@ -534,6 +561,25 @@ with st.sidebar:
 
 
 # ─────────────────────────────────────────────────────────────
+# NAVBAR (toujours visible)
+# ─────────────────────────────────────────────────────────────
+st.markdown(
+    """
+<div class="topnav">
+  <div class="topnav-inner">
+    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <div class="topnav-links">
+      <a href="/" target="_self">Accueil</a>
+      <a href="Recommandation" target="_self">Recommandation</a>
+      <a href="A_propos" target="_self" class="active">À propos</a>
+    </div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+# ─────────────────────────────────────────────────────────────
 # 1. HERO
 # ─────────────────────────────────────────────────────────────
 st.markdown(
@@ -581,8 +627,8 @@ st.markdown(
     </p>
     <div class="vision-stats">
       <div class="vstat">
-        <div class="vstat-num">{n_films()}+</div>
-        <div class="vstat-lbl">Films analysés</div>
+        <div class="vstat-num">Large</div>
+        <div class="vstat-lbl">Catalogue de films</div>
       </div>
       <div class="vstat">
         <div class="vstat-num">100%</div>
@@ -614,29 +660,14 @@ st.markdown(
     <div class="how-card">
       <div class="how-num">01</div>
       <div class="how-title">Analyse des données</div>
-      <div class="how-text">
-        Exploitation de l'API TMDB, des notes communautaires, des genres,
-        des synopsis et des tendances cinéma françaises pour construire un
-        catalogue riche et actualisé.
-      </div>
     </div>
     <div class="how-card">
       <div class="how-num">02</div>
       <div class="how-title">Intelligence de recommandation</div>
-      <div class="how-text">
-        Algorithmes de similarité (TF-IDF, Nearest Neighbors) capables de
-        proposer des films adaptés aux préférences de chaque spectateur,
-        en temps réel.
-      </div>
     </div>
     <div class="how-card">
       <div class="how-num">03</div>
       <div class="how-title">Expérience immersive</div>
-      <div class="how-text">
-        Interface moderne inspirée des plateformes de streaming premium :
-        carrousels, hero plein écran, bandes-annonces, hovers fluides
-        et navigation intuitive.
-      </div>
     </div>
   </div>
 </div>
@@ -745,8 +776,8 @@ st.markdown(
   <h2 class="section-title">Ce que DATAFIX permet</h2>
   <div class="kpi-grid">
     <div class="kpi">
-      <div class="kpi-num">{n_films()}+</div>
-      <div class="kpi-lbl">Films analysés</div>
+      <div class="kpi-num">Large</div>
+      <div class="kpi-lbl">Catalogue de films</div>
     </div>
     <div class="kpi">
       <div class="kpi-num">API</div>
@@ -766,9 +797,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ─────────────────────────────────────────────────────────────
-# 8. FOOTER
-# ─────────────────────────────────────────────────────────────
+# ─── FOOTER ──────────────────────────────────────────────────
 st.markdown(
     """
 <div class="footer">
@@ -776,7 +805,7 @@ st.markdown(
   <div>© 2026 DATAFIX — Projet de recommandation cinématographique basé sur la data science.</div>
   <div class="footer-links">
     <a href="https://github.com/romainlafforgue-alt/datafix-application" target="_blank">GitHub</a>
-    <a href="Accueil" target="_self">Accueil</a>
+    <a href="/" target="_self">Accueil</a>
     <a href="Recommandation" target="_self">Recommandation</a>
     <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>
   </div>

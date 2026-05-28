@@ -65,7 +65,35 @@ st.markdown(
     background: {BG_DEEP};
 }}
 /* on retire les éléments par défaut */
-#MainMenu, footer, header {{ visibility: hidden; }}
+#MainMenu, footer {{ visibility: hidden; }}
+
+/* NAVBAR custom (toujours visible) */
+.topnav {{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(11,11,15,0.78);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}}
+.topnav-inner {{
+  max-width: 1400px; margin: 0 auto;
+  padding: 0.85rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}}
+.topnav-brand {{
+  color: {GOLD} !important; font-weight: 900;
+  letter-spacing: 0.18em; font-size: 1rem;
+  text-decoration: none !important;
+}}
+.topnav-links {{ display: flex; gap: 2rem; }}
+.topnav-links a {{
+  color: #D8D8DC !important; text-decoration: none !important;
+  font-weight: 600; font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.8rem; border-radius: 8px;
+  transition: all 0.2s ease;
+}}
+.topnav-links a:hover {{ color: {GOLD} !important; background: rgba(245,197,24,0.08); }}
+.topnav-links a.active {{ color: {GOLD} !important; background: rgba(245,197,24,0.12); }}
 .block-container {{
     padding-top: 0 !important;
     padding-left: 2.5rem !important;
@@ -967,6 +995,21 @@ hero_html = (
     '</div>'
     '</div>'
     '</div>'
+)
+st.markdown(
+    """
+<div class="topnav">
+  <div class="topnav-inner">
+    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <div class="topnav-links">
+      <a href="/" target="_self">Accueil</a>
+      <a href="Recommandation" target="_self" class="active">Recommandation</a>
+      <a href="A_propos" target="_self">À propos</a>
+    </div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
 )
 st.markdown(hero_html, unsafe_allow_html=True)
 
