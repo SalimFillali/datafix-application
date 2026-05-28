@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 from scipy.sparse import hstack, csr_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -66,6 +67,7 @@ st.markdown(
 }}
 /* on retire les éléments par défaut */
 #MainMenu, footer {{ visibility: hidden; }}
+[data-testid="stHeader"] {{ display: none !important; }}
 
 /* NAVBAR custom (toujours visible) */
 .topnav {{
@@ -94,6 +96,23 @@ st.markdown(
 }}
 .topnav-links a:hover {{ color: {GOLD} !important; background: rgba(245,197,24,0.08); }}
 .topnav-links a.active {{ color: {GOLD} !important; background: rgba(245,197,24,0.12); }}
+.topnav-search input {{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
+  color: #fff;
+  font-size: 0.85rem;
+  width: 260px;
+  outline: none;
+  transition: border 0.2s;
+}}
+.topnav-search input:focus {{
+  border-color: var(--gold);
+}}
+.topnav-search input::placeholder {{
+  color: rgba(255,255,255,0.4);
+}}
 .block-container {{
     padding-top: 0 !important;
     padding-left: 2.5rem !important;
@@ -707,6 +726,7 @@ def tmdb_details(movie_id: int) -> dict:
                         f"https://image.tmdb.org/t/p/w300{c['profile_path']}"
                         if c.get("profile_path") else ""
                     ),
+                    "person_id": c.get("id") or "",
                 }
                 for c in cast_sorted if c.get("name")
             ]
@@ -1000,44 +1020,48 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+      <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
+    </form>
     <div class="topnav-links">
-      <a href="/" target="_self">Accueil</a>
-      <a href="Recommandation" target="_self" class="active">Recommandation</a>
-      <a href="A_propos" target="_self">À propos</a>
+      <a href="/" target="_top">Accueil</a>
+      <a href="/Recommandation" target="_top" class="active">Recommandation</a>
+      <a href="/A_propos" target="_top">À propos</a>
     </div>
   </div>
 </div>
 """,
     unsafe_allow_html=True,
 )
-st.markdown(hero_html, unsafe_allow_html=True)
-
-
 # =====================================================================
-# Barre de recherche
+# MODE RECHERCHE — si ?search= est présent, afficher les résultats et stop
 # =====================================================================
-st.markdown('<div class="search-wrap">', unsafe_allow_html=True)
-search_value = st.text_input(
-    "Rechercher",
-    value="",
-    placeholder="Rechercher un film dans le catalogue…",
-    label_visibility="collapsed",
-    key="search_input",
-)
-st.markdown("</div>", unsafe_allow_html=True)
+_search_q = st.query_params.get("search", "")
+if isinstance(_search_q, list):
+    _search_q = _search_q[0] if _search_q else ""
 
-if search_value and search_value.strip():
-    q = search_value.strip().lower()
-    hits = df[df["Titre"].str.lower().str.contains(re.escape(q), na=False)].head(20)
-    if hits.empty:
-        st.info("Aucun film ne correspond à votre recherche.")
+if _search_q and _search_q.strip():
+    _q = _search_q.strip().lower()
+    _hits = df[df["Titre"].str.lower().str.contains(re.escape(_q), na=False)]
+    st.markdown(
+        f"<div style='padding: 5.5rem 2rem 0; max-width:1400px; margin:0 auto;'>"
+        f"<div style='color:#b8b8b8;font-size:.9rem;margin-bottom:1rem;'>"
+        f"Résultats pour <strong style='color:#F5C518;'>« {_search_q} »</strong> "
+        f"— {len(_hits)} film(s) trouvé(s)</div></div>",
+        unsafe_allow_html=True,
+    )
+    if _hits.empty:
+        st.info(f"Aucun film ne correspond à « {_search_q} » dans le catalogue.")
     else:
         render_row(
-            f"Résultats pour « {search_value} »",
-            hits,
-            subtitle=f"{len(hits)} film(s) trouvé(s)",
+            f"« {_search_q} »",
+            _hits,
+            subtitle=f"{len(_hits)} film(s) trouvé(s)",
         )
+    st.stop()
+
+st.markdown(hero_html, unsafe_allow_html=True)
 
 
 # =====================================================================
@@ -1056,19 +1080,31 @@ if cast_main:
         name = (p["name"] or "").replace("'", "&#39;")
         role = (p["role"] or "").replace("'", "&#39;")
         photo = p["photo"]
+        person_id = str(p.get("person_id") or "")
         if isinstance(photo, str) and photo.startswith("http"):
             photo_html = f'<img src="{photo}" alt="{name}" loading="lazy">'
         else:
             initial = (name[:1] or "?").upper()
             photo_html = f'<span class="ph-fallback">{initial}</span>'
         role_html = f"<div class='cast-role'>{role}</div>" if role else ""
-        cards.append(
-            f"<div class='cast-card'>"
-            f"<div class='cast-photo'>{photo_html}</div>"
-            f"<div class='cast-name'>{name}</div>"
-            f"{role_html}"
-            f"</div>"
-        )
+        import urllib.parse as _up
+        if person_id:
+            actor_href = f"/Acteur?person_id={person_id}&name={_up.quote(p['name'] or '')}"
+            cards.append(
+                f"<a class='cast-card' href='{actor_href}' target='_top' style='text-decoration:none;'>"
+                f"<div class='cast-photo'>{photo_html}</div>"
+                f"<div class='cast-name'>{name}</div>"
+                f"{role_html}"
+                f"</a>"
+            )
+        else:
+            cards.append(
+                f"<div class='cast-card'>"
+                f"<div class='cast-photo'>{photo_html}</div>"
+                f"<div class='cast-name'>{name}</div>"
+                f"{role_html}"
+                f"</div>"
+            )
     cast_html = "<div class='cast-row'>" + "".join(cards) + "</div>"
 
 director_html = (
@@ -1148,16 +1184,15 @@ for _block in (recos, tendances, mieux_notes, cultes, annees_90, annees_80, rece
                 pass
 POSTER_FR_MAP = prefetch_posters_fr(tuple(sorted(_all_ids)))
 
+
 # ─── Rendu des carrousels ────────────────────────────────────
 st.markdown("<div id='recommandations'></div>", unsafe_allow_html=True)
 render_row(
     "Films similaires",
     recos,
-    subtitle="Sélectionnés par le moteur ML à partir des genres et des notes",
+    subtitle="Genres et notes",
     ranked=True,
 )
-render_row("Tendances du moment", tendances,
-           subtitle="Les comédies dont tout le monde parle")
 render_row("Les mieux notés", mieux_notes,
            subtitle="Sélection critique du catalogue", ranked=True)
 render_row("Comédies cultes", cultes,

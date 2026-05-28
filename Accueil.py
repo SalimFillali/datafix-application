@@ -167,7 +167,7 @@ st.markdown(
 }}
 
 .stApp {{ background: var(--bg-deep); color: var(--txt); }}
-[data-testid="stHeader"] {{ background: transparent; }}
+[data-testid="stHeader"] {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}
@@ -199,6 +199,23 @@ footer, #MainMenu {{ visibility: hidden; }}
 }}
 .topnav-links a:hover {{ color: var(--gold) !important; background: rgba(245,197,24,0.08); }}
 .topnav-links a.active {{ color: var(--gold) !important; background: rgba(245,197,24,0.12); }}
+.topnav-search input {{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
+  color: #fff;
+  font-size: 0.85rem;
+  width: 260px;
+  outline: none;
+  transition: border 0.2s;
+}}
+.topnav-search input:focus {{
+  border-color: var(--gold);
+}}
+.topnav-search input::placeholder {{
+  color: rgba(255,255,255,0.4);
+}}
 
 /* HERO */
 .hero {{
@@ -483,11 +500,14 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+      <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
+    </form>
     <div class="topnav-links">
-      <a href="/" target="_self" class="active">Accueil</a>
-      <a href="Recommandation" target="_self">Recommandation</a>
-      <a href="A_propos" target="_self">À propos</a>
+      <a href="/" target="_top" class="active">Accueil</a>
+      <a href="/Recommandation" target="_top">Recommandation</a>
+      <a href="/A_propos" target="_top">À propos</a>
     </div>
   </div>
 </div>
@@ -668,16 +688,6 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
-# ─── 6. TOP 10 TENDANCES ─────────────────────────────────────
-tend = (
-    df[(df["Votes"] >= 500) & (df["Note"] >= 6.5)]
-    .sort_values(["Popularité", "Note"], ascending=[False, False])
-    .drop_duplicates(subset=["id"])
-    .head(10)
-)
-tend_rows = [r for _, r in tend.iterrows()]
-render_row("Tendances du moment", "Top 10 · Popularité", tend_rows, ranked=True)
 
 # ─── 7. RECOMMANDATION EXPRESS ───────────────────────────────
 express_cards_html = ""

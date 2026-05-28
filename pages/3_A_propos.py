@@ -137,13 +137,13 @@ TEAM = [
 
 # Logos technos (SVG simple-icons via cdn jsdelivr, fallback : aucun)
 TECHS = [
-    {"name": "Python",       "color": "#3776AB", "sub": "Langage core"},
-    {"name": "Streamlit",    "color": "#FF4B4B", "sub": "Interface web"},
-    {"name": "Pandas",       "color": "#150458", "sub": "Manipulation data"},
-    {"name": "scikit-learn", "color": "#F7931E", "sub": "Machine learning"},
-    {"name": "TMDB",         "color": "#01B4E4", "sub": "API films"},
-    {"name": "Plotly",       "color": "#7A76FF", "sub": "Visualisation"},
-    {"name": "GitHub",       "color": "#FFFFFF", "sub": "Collaboration"},
+    {"name": "Python",       "color": "#3776AB", "sub": "Langage core",      "logo": "https://cdn.simpleicons.org/python/FFFFFF"},
+    {"name": "Streamlit",    "color": "#FF4B4B", "sub": "Interface web",     "logo": "https://cdn.simpleicons.org/streamlit/FFFFFF"},
+    {"name": "Pandas",       "color": "#150458", "sub": "Manipulation data", "logo": "https://cdn.simpleicons.org/pandas/FFFFFF"},
+    {"name": "scikit-learn", "color": "#F7931E", "sub": "Machine learning",  "logo": "https://cdn.simpleicons.org/scikitlearn/FFFFFF"},
+    {"name": "TMDB",         "color": "#01B4E4", "sub": "API films",         "logo": "https://cdn.simpleicons.org/themoviedatabase/FFFFFF"},
+    {"name": "Plotly",       "color": "#7A76FF", "sub": "Visualisation",     "logo": "https://cdn.simpleicons.org/plotly/FFFFFF"},
+    {"name": "GitHub",       "color": "#FFFFFF", "sub": "Collaboration",     "logo": "https://cdn.simpleicons.org/github/FFFFFF"},
 ]
 
 
@@ -161,7 +161,7 @@ st.markdown(
   --muted: {MUTED};
 }}
 .stApp {{ background: var(--bg-deep); color: var(--txt); }}
-[data-testid="stHeader"] {{ background: transparent; }}
+[data-testid="stHeader"] {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}
@@ -193,6 +193,23 @@ footer, #MainMenu {{ visibility: hidden; }}
 }}
 .topnav-links a:hover {{ color: var(--gold) !important; background: rgba(245,197,24,0.08); }}
 .topnav-links a.active {{ color: var(--gold) !important; background: rgba(245,197,24,0.12); }}
+.topnav-search input {{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
+  color: #fff;
+  font-size: 0.85rem;
+  width: 260px;
+  outline: none;
+  transition: border 0.2s;
+}}
+.topnav-search input:focus {{
+  border-color: var(--gold);
+}}
+.topnav-search input::placeholder {{
+  color: rgba(255,255,255,0.4);
+}}
 
 /* ============ HERO ============ */
 .hero {{
@@ -567,11 +584,14 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+      <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
+    </form>
     <div class="topnav-links">
-      <a href="/" target="_self">Accueil</a>
-      <a href="Recommandation" target="_self">Recommandation</a>
-      <a href="A_propos" target="_self" class="active">À propos</a>
+      <a href="/" target="_top">Accueil</a>
+      <a href="/Recommandation" target="_top">Recommandation</a>
+      <a href="/A_propos" target="_top" class="active">À propos</a>
     </div>
   </div>
 </div>
@@ -598,7 +618,7 @@ st.markdown(
       grâce à la data et à l'intelligence artificielle.
     </p>
     <div class="hero-ctas">
-      <a href="Recommandation" target="_self" class="btn btn-primary">Voir les recommandations</a>
+      <a href="/Recommandation" target="_top" class="btn btn-primary">Voir les recommandations</a>
       <a href="#vision" class="btn btn-ghost">Découvrir le projet</a>
     </div>
   </div>
@@ -717,11 +737,15 @@ st.markdown(
 # 5. TECHNOLOGIES
 # ─────────────────────────────────────────────────────────────
 tech_chips = "".join(
-    f'<div class="tech-chip">'
-    f'  <div class="tech-dot" style="background:{t["color"]};"></div>'
-    f'  <div class="tech-name">{t["name"]}</div>'
-    f'  <div class="tech-sub">{t["sub"]}</div>'
-    f'</div>'
+    (
+        '<div class="tech-chip">'
+        '<div class="tech-dot" style="background:' + t['color'] + ';display:flex;align-items:center;justify-content:center;">'
+        '<img src="' + t['logo'] + '" alt="' + t['name'] + '" style="width:20px;height:20px;object-fit:contain;">'
+        '</div>'
+        '<div class="tech-name">' + t['name'] + '</div>'
+        '<div class="tech-sub">' + t['sub'] + '</div>'
+        '</div>'
+    )
     for t in TECHS
 )
 st.markdown(
@@ -805,8 +829,8 @@ st.markdown(
   <div>© 2026 DATAFIX — Projet de recommandation cinématographique basé sur la data science.</div>
   <div class="footer-links">
     <a href="https://github.com/romainlafforgue-alt/datafix-application" target="_blank">GitHub</a>
-    <a href="/" target="_self">Accueil</a>
-    <a href="Recommandation" target="_self">Recommandation</a>
+    <a href="/" target="_top">Accueil</a>
+    <a href="/Recommandation" target="_top">Recommandation</a>
     <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>
   </div>
   <div class="footer-bottom">Wild Code School · Cinéma de la Creuse · Sprint 4 · 2026</div>
