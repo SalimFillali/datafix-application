@@ -11,7 +11,7 @@ import streamlit as st
 st.set_page_config(
     page_title="DATAFIX – Accueil",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -27,11 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "data" / "df_film.csv"
 LOGO = BASE_DIR / "asset" / "logo.png"
 
-TMDB_BEARER = (
-    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5Y2IwZTY2ZDU4M2NlMjRlNzhkMWIyNzc2YmUxYTJiMCIs"
-    "Im5iZiI6MTc3NzI5NjYzNS4wODksInN1YiI6IjY5ZWY2NGZiYTQ5YzYxY2QwNzE1MWFiNiIsInNj"
-    "b3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.kcNXcdjcIvWsz84XKCFBrOopCYfR7g4yg-IMIV2YYbU"
-)
+TMDB_BEARER = st.secrets["TMDB_BEARER"]
 TMDB_HEADERS = {"accept": "application/json", "Authorization": f"Bearer {TMDB_BEARER}"}
 
 CULTES = [
@@ -168,6 +164,7 @@ st.markdown(
 
 .stApp {{ background: var(--bg-deep); color: var(--txt); }}
 [data-testid="stHeader"] {{ display: none !important; }}
+[data-testid="stSidebar"] {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}

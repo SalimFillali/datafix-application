@@ -18,11 +18,7 @@ BG_DEEP   = "#0E1117"
 BG_SOFT   = "#161B22"
 TXT       = "#E8E8EC"
 
-TMDB_BEARER = (
-    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5Y2IwZTY2ZDU4M2NlMjRlNzhkMWIyNzc2YmUxYTJiMCIs"
-    "Im5iZiI6MTc3NzI5NjYzNS4wODksInN1YiI6IjY5ZWY2NGZiYTQ5YzYxY2QwNzE1MWFiNiIsInNj"
-    "b3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.kcNXcdjcIvWsz84XKCFBrOopCYfR7g4yg-IMIV2YYbU"
-)
+TMDB_BEARER = st.secrets["TMDB_BEARER"]
 TMDB_HEADERS = {"accept": "application/json", "Authorization": f"Bearer {TMDB_BEARER}"}
 
 # ──────────────────────────────────────────────────────────────
@@ -35,6 +31,7 @@ st.markdown(f"""
 :root {{ --gold: {GOLD}; }}
 .stApp {{ background: {BG_DEEP}; color: {TXT}; }}
 [data-testid="stHeader"] {{ display: none !important; }}
+[data-testid="stSidebar"] {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}
@@ -245,7 +242,7 @@ film_cards = ""
 for m in films_with_poster:
     title = (m.get("title") or "").replace("'", "&#39;")
     year  = str(m.get("release_date") or "")[:4]
-    href  = f"/Recommandation?film={__import__('urllib.parse', fromlist=['quote']).quote(m.get('title',''))}"
+    href  = f"/Recommandation?search={__import__('urllib.parse', fromlist=['quote']).quote(m.get('title',''))}"
     film_cards += (
         f'<a class="film-card" href="{href}" target="_self" title="{title}">'
         f'<img src="https://image.tmdb.org/t/p/w185{m["poster_path"]}" alt="{title}" loading="lazy">'
@@ -278,3 +275,15 @@ page_html = f"""
 """
 
 st.markdown(page_html, unsafe_allow_html=True)
+
+st.markdown("""
+<div style="
+  text-align: center; padding: 2.5rem 2rem 3rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.3); font-size: 0.8rem;
+  margin-top: 3rem;
+">
+  © 2026 DATAFIX · Projet de recommandation cinématographique basé sur la data science.<br>
+  <span style="margin-top:0.4rem; display:inline-block;">Wild Code School · Cinéma de la Creuse</span>
+</div>
+""", unsafe_allow_html=True)

@@ -27,7 +27,7 @@ from sklearn.preprocessing import MinMaxScaler
 st.set_page_config(
     page_title="DATAFIX – Recommandation",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,11 +35,7 @@ DATA_PATH = BASE_DIR / "data" / "df_film.csv"
 PEOPLE_PATH = BASE_DIR / "data" / "df_people_details.csv"
 LOGO = BASE_DIR / "asset" / "logo.png"
 
-TMDB_BEARER = (
-    "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5Y2IwZTY2ZDU4M2NlMjRlNzhkMWIyNzc2YmUxYTJiMCIs"
-    "Im5iZiI6MTc3NzI5NjYzNS4wODksInN1YiI6IjY5ZWY2NGZiYTQ5YzYxY2QwNzE1MWFiNiIsInNj"
-    "b3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.kcNXcdjcIvWsz84XKCFBrOopCYfR7g4yg-IMIV2YYbU"
-)
+TMDB_BEARER = st.secrets["TMDB_BEARER"]
 TMDB_HEADERS = {"accept": "application/json", "Authorization": f"Bearer {TMDB_BEARER}"}
 
 GOLD = "#F5C518"

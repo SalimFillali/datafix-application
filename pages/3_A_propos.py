@@ -10,7 +10,7 @@ import streamlit as st
 st.set_page_config(
     page_title="DATAFIX – À propos",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -162,6 +162,7 @@ st.markdown(
 }}
 .stApp {{ background: var(--bg-deep); color: var(--txt); }}
 [data-testid="stHeader"] {{ display: none !important; }}
+[data-testid="stSidebar"] {{ display: none !important; }}
 .block-container {{ padding: 0 !important; max-width: 100% !important; }}
 section.main > div {{ padding: 0 !important; }}
 footer, #MainMenu {{ visibility: hidden; }}
