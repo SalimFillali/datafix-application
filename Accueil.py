@@ -713,7 +713,7 @@ st.markdown(
     f"""
 <div class="express">
   <h3>Vous ne savez pas quoi choisir ?</h3>
-  <p>Laissez-vous guider par nos coups de cœur — cliquez sur un film pour obtenir vos recommandations personnalisées.</p>
+  <p>Laissez-vous guider par nos coups de cœur : cliquez sur un film pour obtenir vos recommandations personnalisées.</p>
   <div class="express-grid">
     {express_cards_html}
   </div>
@@ -727,7 +727,7 @@ st.markdown(
     """
 <div class="footer">
   <div class="footer-brand">DATAFIX</div>
-  <div>© 2026 DATAFIX — Projet de recommandation cinématographique basé sur la data science.</div>
+  <div>© 2026 DATAFIX · Projet de recommandation cinématographique basé sur la data science.</div>
   <div class="footer-links">
     <a href="https://github.com/romainlafforgue-alt/datafix-application" target="_blank">GitHub</a>
     <a href="Recommandation" target="_self">Recommandation</a>

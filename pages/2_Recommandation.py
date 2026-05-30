@@ -1048,7 +1048,7 @@ if _search_q and _search_q.strip():
         f"<div style='padding: 5.5rem 2rem 0; max-width:1400px; margin:0 auto;'>"
         f"<div style='color:#b8b8b8;font-size:.9rem;margin-bottom:1rem;'>"
         f"Résultats pour <strong style='color:#F5C518;'>« {_search_q} »</strong> "
-        f"— {len(_hits)} film(s) trouvé(s)</div></div>",
+        f": {len(_hits)} film(s) trouvé(s)</div></div>",
         unsafe_allow_html=True,
     )
     if _hits.empty:
@@ -1207,6 +1207,6 @@ if not recents.empty:
 
 if not pepites.empty:
     render_row("Pépites cachées", pepites,
-               subtitle="Bien notés, peu connus — à découvrir")
+               subtitle="Bien notés, peu connus, à découvrir")
 
 st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)

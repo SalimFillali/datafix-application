@@ -8,7 +8,7 @@ import streamlit as st
 # Config
 # ──────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Acteur — DATAFIX",
+    page_title="Acteur | DATAFIX",
     page_icon="🎬",
     layout="wide",
 )

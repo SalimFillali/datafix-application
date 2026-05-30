@@ -119,7 +119,7 @@ TEAM = [
             "Analyse les données utilisateurs et cinéma afin d'identifier "
             "les tendances et améliorer la pertinence des recommandations."
         ),
-        "quote": "La donnée raconte des histoires — il faut savoir les écouter.",
+        "quote": "La donnée raconte des histoires : il faut savoir les écouter.",
         "photo": "photo_liliana.jpg",
     },
     {
@@ -772,11 +772,11 @@ st.markdown(
 <div class="section">
   <div class="why">
     <div class="section-eyebrow">Pourquoi DATAFIX ?</div>
-    <h2>Le streaming a transformé la consommation cinéma — <em>il est temps que le cinéma local en profite aussi.</em></h2>
+    <h2>Le streaming a transformé la consommation cinéma : <em>il est temps que le cinéma local en profite aussi.</em></h2>
     <p>
       Les plateformes de streaming utilisent la data pour fidéliser leurs utilisateurs,
       personnaliser les recommandations et créer des expériences immersives.
-      Ces outils sont restés inaccessibles aux salles indépendantes — jusqu'à maintenant.
+      Ces outils sont restés inaccessibles aux salles indépendantes, jusqu'à maintenant.
     </p>
     <p>
       DATAFIX applique cette même logique au cinéma local afin de proposer une
@@ -826,7 +826,7 @@ st.markdown(
     """
 <div class="footer">
   <div class="footer-brand">DATAFIX</div>
-  <div>© 2026 DATAFIX — Projet de recommandation cinématographique basé sur la data science.</div>
+  <div>© 2026 DATAFIX · Projet de recommandation cinématographique basé sur la data science.</div>
   <div class="footer-links">
     <a href="https://github.com/romainlafforgue-alt/datafix-application" target="_blank">GitHub</a>
     <a href="/" target="_self">Accueil</a>
