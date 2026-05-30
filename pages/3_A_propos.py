@@ -612,10 +612,10 @@ st.markdown(
     <h1 class="hero-brand">DATAFIX</h1>
     <div class="hero-tagline">"L'intelligence des données au service du cinéma local."</div>
     <p class="hero-subtitle">
-      DATAFIX est une plateforme de recommandation de films pensée pour
-      accompagner la transformation digitale d'un cinéma indépendant de la Creuse.
-      Notre mission : proposer une expérience moderne, immersive et personnalisée
-      grâce à la data et à l'intelligence artificielle.
+      DATAFIX est une équipe de cinq experts en data science qui a conçu
+      une application de recommandation de films pour le cinéma indépendant
+      de la Creuse. Notre mission : mettre la puissance de la data
+      au service d'une expérience cinéma moderne, immersive et personnalisée.
     </p>
     <div class="hero-ctas">
       <a href="/Recommandation" target="_self" class="btn btn-primary">Voir les recommandations</a>
@@ -640,9 +640,9 @@ st.markdown(
       que les grandes plateformes de streaming.
     </div>
     <p class="vision-text">
-      DATAFIX combine analyse de données, expérience utilisateur et intelligence
-      artificielle afin de reconnecter le public local avec le cinéma.
-      Nous transformons la richesse du catalogue français en une expérience
+      L'équipe DATAFIX réunit analyse de données, expérience utilisateur et
+      intelligence artificielle pour reconnecter le public local avec son cinéma.
+      Nous avons transformé la richesse du catalogue français en une application
       personnalisée, fluide et accessible à toutes les générations.
     </p>
     <div class="vision-stats">
@@ -754,9 +754,9 @@ st.markdown(
   <div class="section-eyebrow">Stack technique</div>
   <h2 class="section-title">Technologies</h2>
   <p class="section-lead">
-    DATAFIX s'appuie sur des technologies modernes de data science et de
-    développement web afin d'offrir une plateforme performante, évolutive
-    et intuitive.
+    L'équipe DATAFIX a choisi des technologies modernes de data science
+    et de développement web pour bâtir une application performante,
+    évolutive et intuitive.
   </p>
   <div class="tech-grid">{tech_chips}</div>
 </div>
@@ -779,8 +779,8 @@ st.markdown(
       Ces outils sont restés inaccessibles aux salles indépendantes, jusqu'à maintenant.
     </p>
     <p>
-      DATAFIX applique cette même logique au cinéma local afin de proposer une
-      expérience plus <strong>humaine</strong>, plus <strong>ciblée</strong>
+      L'équipe DATAFIX a appliqué cette même logique au cinéma local pour proposer
+      une expérience plus <strong>humaine</strong>, plus <strong>ciblée</strong>
       et plus <strong>moderne</strong>. Notre objectif : reconnecter les habitants
       de la Creuse avec leur cinéma, en donnant à chacun la séance qu'il mérite.
     </p>
