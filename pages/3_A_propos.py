@@ -584,14 +584,14 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
     </form>
     <div class="topnav-links">
-      <a href="/" target="_top">Accueil</a>
-      <a href="/Recommandation" target="_top">Recommandation</a>
-      <a href="/A_propos" target="_top" class="active">À propos</a>
+      <a href="/" target="_self">Accueil</a>
+      <a href="/Recommandation" target="_self">Recommandation</a>
+      <a href="/A_propos" target="_self" class="active">À propos</a>
     </div>
   </div>
 </div>
@@ -618,7 +618,7 @@ st.markdown(
       grâce à la data et à l'intelligence artificielle.
     </p>
     <div class="hero-ctas">
-      <a href="/Recommandation" target="_top" class="btn btn-primary">Voir les recommandations</a>
+      <a href="/Recommandation" target="_self" class="btn btn-primary">Voir les recommandations</a>
       <a href="#vision" class="btn btn-ghost">Découvrir le projet</a>
     </div>
   </div>
@@ -829,8 +829,8 @@ st.markdown(
   <div>© 2026 DATAFIX — Projet de recommandation cinématographique basé sur la data science.</div>
   <div class="footer-links">
     <a href="https://github.com/romainlafforgue-alt/datafix-application" target="_blank">GitHub</a>
-    <a href="/" target="_top">Accueil</a>
-    <a href="/Recommandation" target="_top">Recommandation</a>
+    <a href="/" target="_self">Accueil</a>
+    <a href="/Recommandation" target="_self">Recommandation</a>
     <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>
   </div>
   <div class="footer-bottom">Wild Code School · Cinéma de la Creuse · Sprint 4 · 2026</div>

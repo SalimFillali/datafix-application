@@ -153,14 +153,14 @@ footer, #MainMenu {{ visibility: hidden; }}
 st.markdown("""
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
     </form>
     <div class="topnav-links">
-      <a href="/" target="_top">Accueil</a>
-      <a href="/Recommandation" target="_top">Recommandation</a>
-      <a href="/A_propos" target="_top">À propos</a>
+      <a href="/" target="_self">Accueil</a>
+      <a href="/Recommandation" target="_self">Recommandation</a>
+      <a href="/A_propos" target="_self">À propos</a>
     </div>
   </div>
 </div>
@@ -176,7 +176,7 @@ person_name = qp.get("name", "Acteur inconnu")
 if not person_id:
     st.markdown("""
     <div class="actor-page">
-      <a class="back-btn" href="/Recommandation" target="_top">← Retour</a>
+      <a class="back-btn" href="/Recommandation" target="_self">← Retour</a>
       <p style="color:#b8b8b8;">Aucun acteur sélectionné.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -247,7 +247,7 @@ for m in films_with_poster:
     year  = str(m.get("release_date") or "")[:4]
     href  = f"/Recommandation?film={__import__('urllib.parse', fromlist=['quote']).quote(m.get('title',''))}"
     film_cards += (
-        f'<a class="film-card" href="{href}" target="_top" title="{title}">'
+        f'<a class="film-card" href="{href}" target="_self" title="{title}">'
         f'<img src="https://image.tmdb.org/t/p/w185{m["poster_path"]}" alt="{title}" loading="lazy">'
         f'<div class="film-card-title">{title}</div>'
         f'<div class="film-card-year">{year}</div>'
@@ -264,7 +264,7 @@ films_section = (
 
 page_html = f"""
 <div class="actor-page">
-  <a class="back-btn" href="/Recommandation" target="_top">← Retour</a>
+  <a class="back-btn" href="/Recommandation" target="_self">← Retour</a>
   <div class="actor-header">
     {photo_html}
     <div class="actor-info">

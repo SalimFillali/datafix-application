@@ -1020,14 +1020,14 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_top" class="topnav-brand">DATAFIX</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
+    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
     </form>
     <div class="topnav-links">
-      <a href="/" target="_top">Accueil</a>
-      <a href="/Recommandation" target="_top" class="active">Recommandation</a>
-      <a href="/A_propos" target="_top">À propos</a>
+      <a href="/" target="_self">Accueil</a>
+      <a href="/Recommandation" target="_self" class="active">Recommandation</a>
+      <a href="/A_propos" target="_self">À propos</a>
     </div>
   </div>
 </div>
