@@ -1091,7 +1091,7 @@ if cast_main:
         if person_id:
             actor_href = f"/Acteur?person_id={person_id}&name={_up.quote(p['name'] or '')}"
             cards.append(
-                f"<a class='cast-card' href='{actor_href}' target='_top' style='text-decoration:none;'>"
+                f"<a class='cast-card' href='{actor_href}' target='_self' style='text-decoration:none;'>"
                 f"<div class='cast-photo'>{photo_html}</div>"
                 f"<div class='cast-name'>{name}</div>"
                 f"{role_html}"
