@@ -581,7 +581,7 @@ section[data-testid="stSidebar"] .stCaption {{
 with st.sidebar:
     if LOGO.exists():
         st.image(str(LOGO), use_container_width=True)
-    st.caption("v0.3 · Sprint 4 · 2026")
+    st.caption("v0.3 · 2026")
     st.markdown("---")
     st.markdown("**Moteur**")
     st.caption(

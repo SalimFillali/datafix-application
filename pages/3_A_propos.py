@@ -574,7 +574,7 @@ footer, #MainMenu {{ visibility: hidden; }}
 with st.sidebar:
     if LOGO.exists():
         st.image(str(LOGO), use_container_width=True)
-    st.caption("v0.3 · Sprint 4 · 2026")
+    st.caption("v0.3 · 2026")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -833,7 +833,7 @@ st.markdown(
     <a href="/Recommandation" target="_self">Recommandation</a>
     <a href="https://www.themoviedb.org/" target="_blank">TMDB</a>
   </div>
-  <div class="footer-bottom">Wild Code School · Cinéma de la Creuse · Sprint 4 · 2026</div>
+  <div class="footer-bottom">Wild Code School · Cinéma de la Creuse · 2026</div>
 </div>
 """,
     unsafe_allow_html=True,
