@@ -500,6 +500,19 @@ footer, #MainMenu {{ visibility: hidden; }}
     font-size: 0.65rem;
     letter-spacing: 0.25em;
   }}
+  .method-grid {{
+    grid-template-columns: 1fr !important;
+  }}
+  .method-card {{
+    padding: 1.2rem 1rem;
+  }}
+  .section-title {{
+    font-size: clamp(1.4rem, 6vw, 2rem) !important;
+    word-break: keep-all;
+  }}
+  .stats-bar {{
+    grid-template-columns: repeat(2, 1fr) !important;
+  }}
 }}
 /* ── HAMBURGER MOBILE ── */
 .nav-toggle {{ display: none; }}
