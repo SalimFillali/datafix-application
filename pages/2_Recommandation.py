@@ -1234,7 +1234,7 @@ render_row("Années 80", annees_80,
            subtitle="Le grand boum de la comédie populaire")
 
 if not recents.empty:
-    render_row("Récemment ajoutés", recents, subtitle="Sorties après 2020")
+    render_row("Sorties après 2020", recents, subtitle="Films récents dans le catalogue")
 
 if not pepites.empty:
     render_row("Pépites cachées", pepites,
