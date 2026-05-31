@@ -246,8 +246,8 @@ footer, #MainMenu {{ visibility: hidden; }}
   text-transform: uppercase;
 }}
 .hero-title {{
-  font-size: clamp(2.6rem, 6vw, 5.4rem); font-weight: 900;
-  line-height: 1.15; margin: 0 0 1.4rem 0;
+  font-size: clamp(1.8rem, 5vw, 5.4rem); font-weight: 900;
+  line-height: 1.2; margin: 0 0 1.4rem 0;
   letter-spacing: -0.02em; color: var(--txt);
   text-align: center;
 }}
@@ -559,7 +559,7 @@ st.markdown(
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">DATAFIX · Cinéma de la Creuse</div>
+    <div class="hero-eyebrow">Cinéma de la Creuse</div>
     <h1 class="hero-title">
       Le cinéma de la Creuse<br/><span style="color:#F5C518;">réinventé par la data</span>
     </h1>
