@@ -171,6 +171,41 @@ footer, #MainMenu {{ visibility: hidden; }}
   .topnav-inner {{ position: relative; }}
 }}
 
+/* ── RESPONSIVE ACTEUR MOBILE ── */
+@media (max-width: 768px) {{
+  .actor-page {{
+    padding: 5rem 1.2rem 3rem;
+  }}
+  .actor-header {{
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }}
+  .actor-photo {{
+    width: 160px; height: 225px;
+  }}
+  .actor-photo-placeholder {{
+    width: 160px; height: 225px;
+  }}
+  .actor-info h1 {{
+    font-size: 1.7rem;
+  }}
+  .actor-meta {{
+    font-size: 0.85rem;
+  }}
+  .actor-bio {{
+    font-size: 0.9rem;
+    line-height: 1.65;
+    max-width: 100%;
+    text-align: left;
+  }}
+  .film-grid {{
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.8rem;
+  }}
+}}
+
 </style>
 """, unsafe_allow_html=True)
 
