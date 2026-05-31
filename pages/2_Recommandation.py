@@ -1046,7 +1046,7 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <a href="/" target="_self" class="topnav-brand">Sénéchal movies</a>
     <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>

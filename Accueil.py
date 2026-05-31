@@ -532,7 +532,7 @@ st.markdown(
 
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
+    <a href="/" target="_self" class="topnav-brand">Sénéchal movies</a>
     <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>
@@ -561,7 +561,7 @@ st.markdown(
   <div class="hero-content">
     <div class="hero-eyebrow">DATAFIX · Cinéma de la Creuse</div>
     <h1 class="hero-title">
-      Le cinéma de la Creuse<br/>réinventé par la data
+      Le cinéma de la Creuse<br/><span style="color:#F5C518;">réinventé par la data</span>
     </h1>
     <p class="hero-subtitle">
       Retrouvez les meilleures comédies françaises adaptées aux goûts du public creusois.
