@@ -593,6 +593,37 @@ section[data-testid="stSidebar"] .stCaption {{
   .topnav-links a {{ font-size: 1rem; padding: 0.7rem 1rem; }}
   .nav-toggle:checked ~ .topnav-links {{ display: flex !important; }}
   .topnav-inner {{ position: relative; }}
+
+  /* Hero film mobile */
+  .hero-content {{
+    padding: 1.5rem 1.2rem 2rem 1.2rem !important;
+  }}
+  .hero-title {{
+    font-size: clamp(1.6rem, 7vw, 2.6rem) !important;
+    line-height: 1.1;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }}
+  .hero-meta {{
+    font-size: 0.85rem;
+  }}
+  .hero-overview {{
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+  }}
+  .btn-primary, .btn-ghost {{
+    padding: 11px 18px;
+    font-size: 0.88rem;
+  }}
+  .hero-actions {{
+    flex-direction: column;
+    gap: 0.6rem;
+  }}
+  .btn-primary, .btn-ghost {{
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }}
 }}
 
 </style>
