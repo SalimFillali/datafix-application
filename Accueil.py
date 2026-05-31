@@ -247,8 +247,9 @@ footer, #MainMenu {{ visibility: hidden; }}
 }}
 .hero-title {{
   font-size: clamp(2.6rem, 6vw, 5.4rem); font-weight: 900;
-  line-height: 1.05; margin: 0 0 1.4rem 0;
+  line-height: 1.15; margin: 0 0 1.4rem 0;
   letter-spacing: -0.02em; color: var(--txt);
+  text-align: center;
 }}
 .hero-title em {{ color: var(--gold); font-style: normal; }}
 .hero-subtitle {{
@@ -560,7 +561,7 @@ st.markdown(
   <div class="hero-content">
     <div class="hero-eyebrow">DATAFIX · Cinéma de la Creuse</div>
     <h1 class="hero-title">
-      Le cinéma de la Creuse,<br/>réinventé par la <em>data</em>.
+      Le cinéma de la Creuse<br/>réinventé par la data
     </h1>
     <p class="hero-subtitle">
       Retrouvez les meilleures comédies françaises adaptées aux goûts du public creusois.
