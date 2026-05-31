@@ -564,6 +564,36 @@ footer, #MainMenu {{ visibility: hidden; }}
   .tech-grid {{ grid-template-columns: repeat(2, 1fr); }}
   .kpi-grid {{ grid-template-columns: repeat(2, 1fr); }}
 }}
+/* ── HAMBURGER MOBILE ── */
+.nav-toggle {{ display: none; }}
+.hamburger {{
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px;
+  background: none; border: none; z-index: 10001;
+}}
+.hamburger span {{
+  display: block; width: 22px; height: 2px;
+  background: #D8D8DC; border-radius: 2px;
+  transition: all 0.3s ease;
+}}
+.nav-toggle:checked + .hamburger span:nth-child(1) {{ transform: translateY(7px) rotate(45deg); background: {GOLD}; }}
+.nav-toggle:checked + .hamburger span:nth-child(2) {{ opacity: 0; }}
+.nav-toggle:checked + .hamburger span:nth-child(3) {{ transform: translateY(-7px) rotate(-45deg); background: {GOLD}; }}
+@media (max-width: 768px) {{
+  .hamburger {{ display: flex; }}
+  .topnav-search {{ display: none; }}
+  .topnav-links {{
+    display: none !important; flex-direction: column;
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: rgba(14,17,23,0.98); backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 0.8rem 1.5rem 1.2rem; gap: 0.3rem;
+  }}
+  .topnav-links a {{ font-size: 1rem; padding: 0.7rem 1rem; }}
+  .nav-toggle:checked ~ .topnav-links {{ display: flex !important; }}
+  .topnav-inner {{ position: relative; }}
+}}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -587,8 +617,12 @@ st.markdown(
   <div class="topnav-inner">
     <a href="/" target="_self" class="topnav-brand">DATAFIX</a>
     <form class="topnav-search" action="/Recommandation" method="get" target="_self">
-      <input type="text" name="search" placeholder="Rechercher un film dans le catalogue…" autocomplete="off" />
+      <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
+    <label for="nav-toggle" class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </label>
     <div class="topnav-links">
       <a href="/" target="_self">Accueil</a>
       <a href="/Recommandation" target="_self">Recommandation</a>
@@ -596,6 +630,7 @@ st.markdown(
     </div>
   </div>
 </div>
+
 """,
     unsafe_allow_html=True,
 )
