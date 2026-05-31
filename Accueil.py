@@ -482,6 +482,25 @@ footer, #MainMenu {{ visibility: hidden; }}
   .stats-bar {{ grid-template-columns: repeat(2, 1fr); }}
   .card {{ flex: 0 0 150px; }}
 }}
+@media (max-width: 768px) {{
+  .hero {{
+    min-height: 100vh;
+    align-items: flex-end;
+    padding-bottom: 4rem;
+    overflow: visible;
+  }}
+  .hero-content {{
+    padding: 0 1.2rem;
+  }}
+  .hero-title {{
+    font-size: clamp(1.5rem, 8vw, 2.4rem) !important;
+    line-height: 1.2;
+  }}
+  .hero-eyebrow {{
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+  }}
+}}
 /* ── HAMBURGER MOBILE ── */
 .nav-toggle {{ display: none; }}
 .hamburger {{
