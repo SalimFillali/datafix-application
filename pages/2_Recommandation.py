@@ -1155,6 +1155,37 @@ if _search_q and _search_q.strip():
         )
     st.stop()
 
+
+# =====================================================================
+# MODE DÉCENNIE — si ?decade= est présent, page complète
+# =====================================================================
+_decade_param = st.query_params.get("decade", "")
+if isinstance(_decade_param, list):
+    _decade_param = _decade_param[0] if _decade_param else ""
+
+if _decade_param and _decade_param.strip().isdigit():
+    _d = int(_decade_param.strip())
+    _decade_films = df[(df["Année"] >= _d) & (df["Année"] < _d + 10)]\
+        .sort_values(["Note", "Votes"], ascending=False)
+    _decade_label = f"{_d}s"
+    st.markdown(
+        f"<div style='padding: 5.5rem 2rem 0; max-width:1400px; margin:0 auto;'>"
+        f"<div style='color:#b8b8b8;font-size:.9rem;margin-bottom:1rem;'>"
+        f"Films des <strong style='color:#F5C518;'>{_decade_label}</strong> "
+        f": {len(_decade_films)} film(s) dans le catalogue</div></div>",
+        unsafe_allow_html=True,
+    )
+    if _decade_films.empty:
+        st.info(f"Aucun film des {_decade_label} dans le catalogue.")
+    else:
+        render_row(
+            f"Films des {_decade_label}",
+            _decade_films,
+            subtitle=f"{len(_decade_films)} films · triés par note",
+            ranked=True,
+        )
+    st.stop()
+
 st.markdown(hero_html, unsafe_allow_html=True)
 
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
