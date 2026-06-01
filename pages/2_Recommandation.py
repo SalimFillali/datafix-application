@@ -1302,33 +1302,27 @@ if _decade_mode:
     render_row(f"Années {_d}", _decade_films, ranked=True)
     st.stop()
 
-# ── MODE RECHERCHE : résultats de recherche ───────────────────────────────────
+# ── MODE RECHERCHE : résultats de recherche (query param film= sans match exact) ──
 if _search_mode and _raw_query:
     _q = _raw_query.strip().lower()
-    _results = df[df["Titre"].str.lower().str.contains(_q, na=False, regex=False)]        .sort_values(["Note", "Votes"], ascending=False)
-    _back_url = "/Recommandation"
+    _results = df[df["Titre"].str.lower().str.contains(_q, na=False, regex=False)] \
+        .sort_values(["Note", "Votes"], ascending=False)
     st.markdown(
-        f"""<div style="padding:1.5rem 2rem 1rem 2rem">
-        <a href="{_back_url}" target="_self"
-           style="color:#9ca3af;font-size:.85rem;text-decoration:none;">
-           ← Retour
-        </a>
+        f'''<div style="padding:1.5rem 2rem 1rem 2rem">
+        <a href="/Recommandation" target="_self"
+           style="color:#9ca3af;font-size:.85rem;text-decoration:none;">← Retour</a>
         <h2 style="color:#F5C518;margin:.5rem 0 .2rem 0;font-size:1.6rem">
-            Résultats pour « {_raw_query} »
+            Résultats pour &#171;&nbsp;{_raw_query}&nbsp;&#187;
         </h2>
         <p style="color:#9ca3af;font-size:.85rem;margin:0 0 1.5rem 0">
             {len(_results)} résultat{"s" if len(_results)>1 else ""} trouvé{"s" if len(_results)>1 else ""}
-        </p>
-        </div>""",
+        </p></div>''',
         unsafe_allow_html=True,
     )
     if not _results.empty:
         render_row("", _results, ranked=False)
     else:
-        st.markdown(
-            '<p style="color:#9ca3af;padding:2rem">Aucun film trouvé.</p>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<p style="color:#9ca3af;padding:2rem">Aucun film trouvé.</p>', unsafe_allow_html=True)
     st.stop()
 
 _decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
@@ -1357,6 +1351,46 @@ for _d in _decades:
 
 if not _user_selected_film:
     st.markdown(_filter_css_str + f'<div class="filter-bar">{_d_chips}</div>', unsafe_allow_html=True)
+
+# ── Barre de recherche native (fiable sous Streamlit) ────────────────────────
+if not _user_selected_film:
+    st.markdown("""
+<style>
+div[data-testid="stTextInput"] > div > div > input {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 30px !important;
+    color: #fff !important;
+    padding: .45rem 1.2rem !important;
+    font-size: .9rem !important;
+}
+div[data-testid="stTextInput"] > div > div > input::placeholder { color: rgba(255,255,255,.4) !important; }
+div[data-testid="stTextInput"] > label { display: none !important; }
+div[data-testid="stTextInput"] { margin: .5rem 2rem 1rem 2rem; max-width: 420px; }
+</style>""", unsafe_allow_html=True)
+    _native_search = st.text_input(
+        "Rechercher", placeholder="🔍 Rechercher un film par titre…",
+        label_visibility="collapsed", key="native_search_bar"
+    )
+    if _native_search and _native_search.strip():
+        _q2 = _native_search.strip().lower()
+        _res2 = df[df["Titre"].str.lower().str.contains(_q2, na=False, regex=False)] \
+            .sort_values(["Note", "Votes"], ascending=False)
+        st.markdown(
+            f'''<div style="padding:.5rem 2rem .8rem 2rem">
+            <h2 style="color:#F5C518;margin:0 0 .2rem 0;font-size:1.4rem">
+                Résultats pour &#171;&nbsp;{_native_search.strip()}&nbsp;&#187;
+            </h2>
+            <p style="color:#9ca3af;font-size:.82rem;margin:0 0 1rem 0">
+                {len(_res2)} film{"s" if len(_res2)!=1 else ""} trouvé{"s" if len(_res2)!=1 else ""}
+            </p></div>''',
+            unsafe_allow_html=True,
+        )
+        if not _res2.empty:
+            render_row("", _res2, ranked=False)
+        else:
+            st.markdown('<p style="color:#9ca3af;padding:0 2rem 2rem">Aucun film trouvé.</p>', unsafe_allow_html=True)
+        st.stop()
 
 
 def apply_filters(frame):
