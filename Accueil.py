@@ -68,7 +68,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 #sn-links-desktop a.active {{ color: #F5C518 !important; background: rgba(245,197,24,.12); }}
 
 /* ── Hamburger mobile (CSS-only) ── */
-#sn-toggle {{ display: none; }}
 #sn-hamburger {{
   display: none; flex-direction: column; justify-content: center; gap: 5px;
   cursor: pointer; background: none; border: none;
@@ -79,13 +78,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
   background: #D8D8DC; border-radius: 2px;
   transition: all .25s ease; margin: 0 auto;
 }}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(1) {{
-  transform: translateY(7px) rotate(45deg); background: #F5C518;
-}}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(2) {{ opacity: 0; }}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(3) {{
-  transform: translateY(-7px) rotate(-45deg); background: #F5C518;
-}}
 
 /* ── Dropdown mobile ── */
 #sn-dropdown {{
@@ -93,7 +85,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
   background: rgba(11,11,15,0.98); border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-direction: column; z-index: 999998; backdrop-filter: blur(14px);
 }}
-#sn-toggle:checked ~ #sn-dropdown {{ display: flex; }}
 #sn-dropdown a {{
   color: #D8D8DC !important; text-decoration: none !important;
   font-size: 1rem; font-weight: 600;
@@ -111,7 +102,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 }}
 </style>
 
-<input type="checkbox" id="sn-toggle">
 <div id="sn-navbar">
   <a class="sn-brand" href="/" target="_self">Sénéchal movies</a>
   <form action="/Recommandation" method="get">
@@ -122,9 +112,9 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
     <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
     <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
   </div>
-  <label for="sn-toggle" id="sn-hamburger">
+  <button id="sn-hamburger" onclick="var d=document.getElementById('sn-dropdown');d.style.display=d.style.display==='flex'?'none':''" type="button">
     <span></span><span></span><span></span>
-  </label>
+  </button>
 </div>
 <div id="sn-dropdown">
   <a class="{active_acc}" href="/" target="_self">Accueil</a>
