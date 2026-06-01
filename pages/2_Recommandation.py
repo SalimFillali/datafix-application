@@ -1136,13 +1136,20 @@ with st.spinner("Préparation du moteur cinéma…"):
 # Sélection du film en vedette (via query param ?film=…)
 # =====================================================================
 qp = st.query_params
-sel_title = qp.get("film")
-if isinstance(sel_title, list):
-    sel_title = sel_title[0] if sel_title else None
-# Flag: l'utilisateur a explicitement cliqué sur un film
-_user_selected_film = bool(sel_title and sel_title in df["Titre"].values)
+_raw_query = qp.get("film")
+if isinstance(_raw_query, list):
+    _raw_query = _raw_query[0] if _raw_query else None
+_raw_decade = qp.get("decade")
+if isinstance(_raw_decade, list):
+    _raw_decade = _raw_decade[0] if _raw_decade else None
 
-if not sel_title or sel_title not in df["Titre"].values:
+# Modes
+_user_selected_film = bool(_raw_query and _raw_query in df["Titre"].values)
+_search_mode = bool(_raw_query and not _user_selected_film)
+_decade_mode = bool(_raw_decade and _raw_decade.strip().isdigit() and not _raw_query)
+
+sel_title = _raw_query if _user_selected_film else None
+if not sel_title:
     sel_title = next((t for t in FALLBACK_FILMS if t in df["Titre"].values),
                      df["Titre"].iloc[0])
 
@@ -1271,6 +1278,58 @@ hero_html = (
 # Masquer le filtre quand un film est sélectionné
 _qp = st.query_params
 _fdecade = _qp.get("decade", "")
+
+# ── MODE DÉCENNIE : pleine page films d'une décennie ─────────────────────────
+if _decade_mode:
+    _d = int(_raw_decade.strip())
+    _decade_films = df[(df["Année"] >= _d) & (df["Année"] < _d + 10)]        .sort_values(["Note", "Votes"], ascending=False)
+    _back_url = "/Recommandation"
+    st.markdown(
+        f"""<div style="padding:1.5rem 2rem 1rem 2rem">
+        <a href="{_back_url}" target="_self"
+           style="color:#9ca3af;font-size:.85rem;text-decoration:none;">
+           ← Retour
+        </a>
+        <h2 style="color:#F5C518;margin:.5rem 0 .2rem 0;font-size:1.6rem">
+            Films des années {_d}
+        </h2>
+        <p style="color:#9ca3af;font-size:.85rem;margin:0 0 1.5rem 0">
+            {len(_decade_films)} film{"s" if len(_decade_films)>1 else ""} · triés par note
+        </p>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+    render_row(f"Années {_d}", _decade_films, ranked=True)
+    st.stop()
+
+# ── MODE RECHERCHE : résultats de recherche ───────────────────────────────────
+if _search_mode and _raw_query:
+    _q = _raw_query.strip().lower()
+    _results = df[df["Titre"].str.lower().str.contains(_q, na=False, regex=False)]        .sort_values(["Note", "Votes"], ascending=False)
+    _back_url = "/Recommandation"
+    st.markdown(
+        f"""<div style="padding:1.5rem 2rem 1rem 2rem">
+        <a href="{_back_url}" target="_self"
+           style="color:#9ca3af;font-size:.85rem;text-decoration:none;">
+           ← Retour
+        </a>
+        <h2 style="color:#F5C518;margin:.5rem 0 .2rem 0;font-size:1.6rem">
+            Résultats pour « {_raw_query} »
+        </h2>
+        <p style="color:#9ca3af;font-size:.85rem;margin:0 0 1.5rem 0">
+            {len(_results)} résultat{"s" if len(_results)>1 else ""} trouvé{"s" if len(_results)>1 else ""}
+        </p>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+    if not _results.empty:
+        render_row("", _results, ranked=False)
+    else:
+        st.markdown(
+            '<p style="color:#9ca3af;padding:2rem">Aucun film trouvé.</p>',
+            unsafe_allow_html=True,
+        )
+    st.stop()
 
 _decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
 
