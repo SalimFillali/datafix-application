@@ -891,4 +891,23 @@ for t in EXPRESS_CHOICES:
             else ""
         )
         express_cards_html += (
-           
+            f'<a class="express-card" href="{href}" target="_self">'
+            f'{img_html}'
+            f'<div class="express-card-label">{title}</div>'
+            f'</a>'
+        )
+
+st.markdown(
+    f"""
+<div class="express">
+  <h3>Vous ne savez pas quoi choisir ?</h3>
+  <p>Laissez-vous guider par nos coups de cœur : cliquez sur un film pour obtenir vos recommandations personnalisées.</p>
+  <div class="express-grid">
+    {express_cards_html}
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+# ─── FOOTER ─────────────────────
