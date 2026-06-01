@@ -130,7 +130,7 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 <div id="sn-navbar">
   <a class="sn-brand" href="/" target="_self">Sénéchal movies</a>
   <form action="/Recommandation" method="get">
-    <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off"/>
+    <input type="text" name="film" placeholder="Rechercher un film…" autocomplete="off"/>
   </form>
   <div id="sn-links-desktop">
     <a class="{active_acc}" href="/" target="_self">Accueil</a>
@@ -1270,7 +1270,7 @@ hero_html = (
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
 # Masquer le filtre quand un film est sélectionné
 _qp = st.query_params
-_fdecade = "" if _user_selected_film else _qp.get("decade", "")
+_fdecade = _qp.get("decade", "")
 
 _decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
 
@@ -1288,6 +1288,7 @@ _filter_css_str = (
     "</style>"
 )
 
+_film_param = urllib.parse.quote(sel_title) if sel_title else ""
 _d_chips = '<span class="filter-label">Période</span>'
 _d_all_active = "active" if not _fdecade else ""
 _d_chips += f'<a class="filter-chip {_d_all_active}" href="?decade=" target="_self">Toutes</a>'
@@ -1314,7 +1315,8 @@ def apply_filters(frame):
 # =====================================================================
 # Bloc détail du film sélectionné
 # =====================================================================
-st.markdown("<div id='detail'></div>", unsafe_allow_html=True)
+if _user_selected_film:
+ st.markdown("<div id='detail'></div>", unsafe_allow_html=True)
 poster_main = best_poster(film)
 cast_main = best_cast(film, n=6)
 director_main = best_director(film)
