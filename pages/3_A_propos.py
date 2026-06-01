@@ -957,33 +957,4 @@ st.markdown(
 
 # ─────────────────────────────────────────────────────────────
 # 7. NOS OBJECTIFS (KPI)
-# ─────────────────────────────────────────────────────────────
-st.markdown(
-    f"""
-<div class="section">
-  <div class="section-eyebrow">Nos objectifs</div>
-  <h2 class="section-title">Ce que DATAFIX permet</h2>
-  <div class="kpi-grid">
-    <div class="kpi">
-      <div class="kpi-num">Large</div>
-      <div class="kpi-lbl">Catalogue de films</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-num">API</div>
-      <div class="kpi-lbl">Temps réel TMDB</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-num">ML</div>
-      <div class="kpi-lbl">Reco intelligentes</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-num">UX</div>
-      <div class="kpi-lbl">Expérience premium</div>
-    </div>
-  </div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
-# ─── FOOTER ───────────────────────────────────
+# ─────────────────────

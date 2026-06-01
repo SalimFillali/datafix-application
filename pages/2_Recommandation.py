@@ -1423,4 +1423,37 @@ pepites = df[
 # Pré-fetch parallèle des posters FR pour TOUS les films affichés (caché 24h)
 _all_ids = set()
 for _block in (recos, tendances, mieux_notes, cultes, annees_90, annees_80, recents, pepites):
-    if _block is not
+    if _block is not None and not _block.empty:
+        for _v in _block["id"].dropna().tolist():
+            try:
+                _all_ids.add(int(_v))
+            except Exception:
+                pass
+POSTER_FR_MAP = prefetch_posters_fr(tuple(sorted(_all_ids)))
+
+
+# ─── Rendu des carrousels ────────────────────────────
+st.markdown("<div id='recommandations'></div>", unsafe_allow_html=True)
+
+_recos_f = apply_filters(recos)
+_mieux_f = apply_filters(mieux_notes)
+_cultes_f = apply_filters(cultes)
+_90_f = apply_filters(annees_90)
+_80_f = apply_filters(annees_80)
+_recents_f = apply_filters(recents)
+_pepites_f = apply_filters(pepites)
+
+_reco_reasons = {r["Titre"]: _reco_reason(film, r) for _, r in _recos_f.iterrows()} if not _recos_f.empty else {}
+
+render_row("Films similaires", _recos_f, subtitle="Genres et notes", ranked=True, reasons=_reco_reasons)
+render_row("Les mieux notés", _mieux_f, subtitle="Sélection critique du catalogue", ranked=True)
+render_row("Comédies cultes", _cultes_f, subtitle="Les incontournables qui ont marqué le cinéma français")
+render_row("Années 90", _90_f, subtitle="Retour vers la décennie dorée de la comédie FR")
+render_row("Années 80", _80_f, subtitle="Le grand boum de la comédie populaire")
+
+if not _recents_f.empty:
+    render_row("Sorties après 2020", _recents_f, subtitle="Films récents dans le catalogue")
+
+if not _pepites_f.empty:
+    render_row("Pépites cachées", _pepites_f, subtitle="Bien notés, peu connus, à découvrir")
+st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)

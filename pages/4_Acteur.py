@@ -485,4 +485,7 @@ st.markdown("""
   color: rgba(255,255,255,0.3); font-size: 0.8rem;
   margin-top: 3rem;
 ">
-  © 2026 DATAFIX · Projet de recommandation cinématographique ba
+  © 2026 DATAFIX · Projet de recommandation cinématographique basé sur la data science.<br>
+  <span style="margin-top:0.4rem; display:inline-block;">Wild Code School · Cinéma de la Creuse</span>
+</div>
+""", unsafe_allow_html=True)
