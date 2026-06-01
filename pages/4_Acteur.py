@@ -15,64 +15,62 @@ st.set_page_config(
 )
 
 def render_navbar(active_page: str = ""):
-    """Injecte la navbar dans le document parent via components.html (contourne les overlays Streamlit)."""
+    """Navbar rendue dans un iframe components.html positionné fixed via CSS parent."""
     import streamlit.components.v1 as _c
-    acc = "sn-active" if active_page == "accueil" else ""
-    reco = "sn-active" if active_page == "recommandation" else ""
-    ap = "sn-active" if active_page == "apropos" else ""
-    html = f"""<!DOCTYPE html><html><head><style>
-*{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:transparent}}
-#nav{{position:fixed;top:0;left:0;right:0;z-index:2147483647;
-  background:rgba(11,11,15,0.92);backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}}
-.inner{{max-width:1400px;margin:0 auto;padding:.85rem 2rem;
-  display:flex;align-items:center;justify-content:space-between}}
-a.brand{{color:#F5C518!important;font-weight:900;letter-spacing:.18em;
-  font-size:1rem;text-decoration:none!important;cursor:pointer}}
-.links{{display:flex;gap:2rem}}
-.links a{{color:#D8D8DC!important;text-decoration:none!important;
-  font-weight:600;font-size:.9rem;padding:.4rem .8rem;border-radius:8px;
-  transition:all .2s;cursor:pointer}}
-.links a:hover{{color:#F5C518!important;background:rgba(245,197,24,.08)}}
-.links a.sn-active{{color:#F5C518!important;background:rgba(245,197,24,.12)}}
-form input{{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
-  border-radius:20px;padding:.35rem 1rem;color:#fff;font-size:.85rem;width:220px;outline:none}}
-form input::placeholder{{color:rgba(255,255,255,.4)}}
-@media(max-width:768px){{form{{display:none}}.links{{gap:.6rem}}.links a{{font-size:.8rem;padding:.3rem .5rem}}.inner{{padding:.7rem 1rem}}}}
-</style></head><body>
-<div id="nav"><div class="inner">
-  <a class="brand" onclick="top.location.href='/'">Sénéchal movies</a>
-  <form onsubmit="top.location.href='/Recommandation?search='+encodeURIComponent(this.q.value);return false">
-    <input name="q" placeholder="Rechercher un film…" autocomplete="off"/>
-  </form>
-  <div class="links">
-    <a class="{acc}" onclick="top.location.href='/'">Accueil</a>
-    <a class="{reco}" onclick="top.location.href='/Recommandation'">Recommandation</a>
-    <a class="{ap}" onclick="top.location.href='/A_propos'">À propos</a>
-  </div>
-</div></div>
-<script>
-  // Resize iframe to 0 and push nav into parent
-  try {{
-    var existing = window.parent.document.getElementById('sn-nav-inject');
-    if(existing) existing.remove();
-    var d = window.parent.document.createElement('div');
-    d.id = 'sn-nav-inject';
-    d.innerHTML = document.getElementById('nav').outerHTML;
-    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647';
-    window.parent.document.body.appendChild(d);
-    var s = window.parent.document.createElement('style');
-    s.id = 'sn-nav-style';
-    var es = window.parent.document.getElementById('sn-nav-style');
-    if(es) es.remove();
-    s.textContent = document.querySelector('style').textContent;
-    window.parent.document.head.appendChild(s);
-  }} catch(e) {{}}
-</script>
-</body></html>"""
-    _c.html(html, height=0, scrolling=False)
+    acc = "active" if active_page == "accueil" else ""
+    reco = "active" if active_page == "recommandation" else ""
+    ap = "active" if active_page == "apropos" else ""
+
+    st.markdown("""
+<style>
+div[data-testid="stCustomComponentV1"]:first-of-type {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  width: 100vw !important; height: 60px !important;
+  z-index: 2147483647 !important; border: none !important;
+}
+div[data-testid="stCustomComponentV1"]:first-of-type iframe {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  width: 100vw !important; height: 60px !important; border: none !important;
+}
+section.main .block-container { padding-top: 4.5rem !important; }
+</style>""", unsafe_allow_html=True)
+
+    nav_html = (
+        "<!DOCTYPE html><html><head><style>"
+        "* { margin:0; padding:0; box-sizing:border-box; }"
+        "html, body { width:100%; height:60px; overflow:hidden; background:rgba(11,11,15,0.95); }"
+        "nav { width:100%; height:60px; display:flex; align-items:center; justify-content:space-between;"
+        " padding:0 2rem; background:rgba(11,11,15,0.95); backdrop-filter:blur(14px);"
+        " border-bottom:1px solid rgba(255,255,255,0.08);"
+        " font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }"
+        "a.brand { color:#F5C518; font-weight:900; letter-spacing:.18em; font-size:1rem;"
+        " text-decoration:none; cursor:pointer; white-space:nowrap; }"
+        "form input { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);"
+        " border-radius:20px; padding:.3rem .9rem; color:#fff; font-size:.85rem; width:200px; outline:none; }"
+        "form input::placeholder { color:rgba(255,255,255,.4); }"
+        ".links { display:flex; gap:1.5rem; }"
+        ".links a { color:#D8D8DC; text-decoration:none; font-weight:600; font-size:.9rem;"
+        " padding:.35rem .75rem; border-radius:8px; cursor:pointer; white-space:nowrap; transition:all .15s; }"
+        ".links a:hover { color:#F5C518; background:rgba(245,197,24,.08); }"
+        ".links a.active { color:#F5C518; background:rgba(245,197,24,.12); }"
+        "@media(max-width:768px){ form{display:none} .links{gap:.5rem}"
+        " .links a{font-size:.78rem;padding:.3rem .5rem} nav{padding:0 1rem} }"
+        "</style></head><body><nav>"
+        "<a class='brand' href='/' onclick='top.location.href=\"/\";return false;'>Sénéchal movies</a>"
+        "<form onsubmit='top.location.href=\"/Recommandation?search=\"+encodeURIComponent(this.q.value);return false;'>"
+        "<input name='q' placeholder='Rechercher un film…' autocomplete='off'/></form>"
+        "<div class='links'>"
+        f"<a class='{acc}' href='/' onclick='top.location.href=\"/\";return false;'>Accueil</a>"
+        f"<a class='{reco}' href='/Recommandation' onclick='top.location.href=\"/Recommandation\";return false;'>Recommandation</a>"
+        f"<a class='{ap}' href='/A_propos' onclick='top.location.href=\"/A_propos\";return false;'>À propos</a>"
+        "</div></nav></body></html>"
+    )
+    _c.html(nav_html, height=60, scrolling=False)
+
+
+render_navbar("")
 
 
 GOLD      = "#F5C518"
@@ -292,8 +290,6 @@ footer, #MainMenu {{ visibility: hidden; }}
 # ──────────────────────────────────────────────────────────────
 # Navbar
 # ──────────────────────────────────────────────────────────────
-render_navbar("")
-
 # ──────────────────────────────────────────────────────────────
 # Params
 # ──────────────────────────────────────────────────────────────

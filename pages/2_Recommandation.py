@@ -31,101 +31,87 @@ st.set_page_config(
 )
 
 def render_navbar(active_page: str = ""):
-    """Inject navbar directly into parent document via components.html."""
-    import streamlit.components.v1 as _components
-    nav_css = """
-    <style>
-    #sn-topnav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 2147483647;
-      background: rgba(11,11,15,0.92);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    #sn-topnav .sn-inner {
-      max-width: 1400px; margin: 0 auto;
-      padding: 0.85rem 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    #sn-topnav a.sn-brand {
-      color: #F5C518 !important; font-weight: 900;
-      letter-spacing: 0.18em; font-size: 1rem;
-      text-decoration: none !important; cursor: pointer;
-    }
-    #sn-topnav .sn-links { display: flex; gap: 2rem; }
-    #sn-topnav .sn-links a {
-      color: #D8D8DC !important; text-decoration: none !important;
-      font-weight: 600; font-size: 0.9rem;
-      letter-spacing: 0.05em;
-      padding: 0.4rem 0.8rem; border-radius: 8px;
-      transition: all 0.2s ease; cursor: pointer;
-    }
-    #sn-topnav .sn-links a:hover { color: #F5C518 !important; background: rgba(245,197,24,0.08); }
-    #sn-topnav .sn-links a.sn-active { color: #F5C518 !important; background: rgba(245,197,24,0.12); }
-    #sn-topnav form.sn-search input {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px; padding: 0.35rem 1rem;
-      color: #fff; font-size: 0.85rem; width: 220px;
-      outline: none;
-    }
-    #sn-topnav form.sn-search input::placeholder { color: rgba(255,255,255,0.4); }
-    @media (max-width: 768px) {
-      #sn-topnav .sn-search { display: none; }
-      #sn-topnav .sn-links { gap: 0.8rem; }
-      #sn-topnav .sn-links a { font-size: 0.8rem; padding: 0.3rem 0.5rem; }
-      #sn-topnav .sn-inner { padding: 0.7rem 1rem; }
-    }
-    </style>
-    """
-    acc_active = 'sn-active' if active_page == 'accueil' else ''
-    reco_active = 'sn-active' if active_page == 'recommandation' else ''
-    ap_active = 'sn-active' if active_page == 'apropos' else ''
-    nav_html = f"""
-    {nav_css}
-    <div id="sn-topnav">
-      <div class="sn-inner">
-        <a class="sn-brand" href="/" onclick="window.top.location.href='/'">Sénéchal movies</a>
-        <form class="sn-search" onsubmit="var q=this.q.value; window.top.location.href='/Recommandation?search='+encodeURIComponent(q); return false;">
-          <input type="text" name="q" placeholder="Rechercher un film…" autocomplete="off" />
-        </form>
-        <div class="sn-links">
-          <a class="{acc_active}" href="/" onclick="window.top.location.href='/'; return false;">Accueil</a>
-          <a class="{reco_active}" href="/Recommandation" onclick="window.top.location.href='/Recommandation'; return false;">Recommandation</a>
-          <a class="{ap_active}" href="/A_propos" onclick="window.top.location.href='/A_propos'; return false;">À propos</a>
-        </div>
-      </div>
-    </div>
-    <script>
-    // Move navbar to parent document body
-    (function() {{
-      try {{
-        var existing = window.parent.document.getElementById('sn-topnav');
-        if (existing) existing.remove();
-        var existingStyle = window.parent.document.getElementById('sn-style');
-        if (existingStyle) existingStyle.remove();
-        
-        // Move style to parent head
-        var styles = document.querySelectorAll('style');
-        styles.forEach(function(s) {{
-          var ps = window.parent.document.createElement('style');
-          ps.id = 'sn-style';
-          ps.textContent = s.textContent;
-          window.parent.document.head.appendChild(ps);
-        }});
-        
-        // Move nav to parent body
-        var nav = document.getElementById('sn-topnav');
-        if (nav) {{
-          var clone = nav.cloneNode(true);
-          window.parent.document.body.appendChild(clone);
-          nav.remove();
-        }}
-      }} catch(e) {{}}
-    }})();
-    </script>
-    """
-    _components.html(nav_html, height=0, scrolling=False)
+    """Navbar rendue dans un iframe components.html positionné fixed via CSS parent."""
+    import streamlit.components.v1 as _c
+    acc = "active" if active_page == "accueil" else ""
+    reco = "active" if active_page == "recommandation" else ""
+    ap = "active" if active_page == "apropos" else ""
+
+    # CSS injecté dans le parent pour positionner l'iframe en fixed
+    st.markdown("""
+<style>
+/* Positionne le premier iframe de composant custom en fixed navbar */
+div[data-testid="stCustomComponentV1"]:first-of-type {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  width: 100vw !important; height: 60px !important;
+  z-index: 2147483647 !important;
+  border: none !important;
+}
+div[data-testid="stCustomComponentV1"]:first-of-type iframe {
+  position: fixed !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  width: 100vw !important; height: 60px !important;
+  border: none !important;
+}
+/* Compenser la hauteur de la navbar dans le contenu */
+section.main .block-container { padding-top: 4.5rem !important; }
+</style>""", unsafe_allow_html=True)
+
+    nav_html = f"""<!DOCTYPE html><html><head>
+<style>
+* {{ margin:0; padding:0; box-sizing:border-box; }}
+html, body {{ width:100%; height:60px; overflow:hidden; background:rgba(11,11,15,0.95); }}
+nav {{
+  width:100%; height:60px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 2rem;
+  background:rgba(11,11,15,0.95);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}}
+a.brand {{
+  color:#F5C518; font-weight:900; letter-spacing:.18em;
+  font-size:1rem; text-decoration:none; cursor:pointer; white-space:nowrap;
+}}
+form input {{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+  border-radius:20px; padding:.3rem .9rem; color:#fff;
+  font-size:.85rem; width:200px; outline:none;
+}}
+form input::placeholder {{ color:rgba(255,255,255,.4); }}
+.links {{ display:flex; gap:1.5rem; }}
+.links a {{
+  color:#D8D8DC; text-decoration:none; font-weight:600;
+  font-size:.9rem; padding:.35rem .75rem; border-radius:8px;
+  cursor:pointer; white-space:nowrap; transition:all .15s;
+}}
+.links a:hover {{ color:#F5C518; background:rgba(245,197,24,.08); }}
+.links a.active {{ color:#F5C518; background:rgba(245,197,24,.12); }}
+@media(max-width:768px) {{
+  form {{ display:none; }}
+  .links {{ gap:.5rem; }}
+  .links a {{ font-size:.78rem; padding:.3rem .5rem; }}
+  nav {{ padding:0 1rem; }}
+}}
+</style>
+</head><body>
+<nav>
+  <a class="brand" href="/" onclick="top.location.href='/';return false;">Sénéchal movies</a>
+  <form onsubmit="top.location.href='/Recommandation?search='+encodeURIComponent(this.q.value);return false;">
+    <input name="q" placeholder="Rechercher un film…" autocomplete="off"/>
+  </form>
+  <div class="links">
+    <a class="{acc}" href="/" onclick="top.location.href='/';return false;">Accueil</a>
+    <a class="{reco}" href="/Recommandation" onclick="top.location.href='/Recommandation';return false;">Recommandation</a>
+    <a class="{ap}" href="/A_propos" onclick="top.location.href='/A_propos';return false;">À propos</a>
+  </div>
+</nav>
+</body></html>"""
+    _c.html(nav_html, height=60, scrolling=False)
+
+render_navbar("recommandation")
 
 
 
@@ -1219,7 +1205,6 @@ hero_html = (
     '</div>'
     '</div>'
 )
-render_navbar("recommandation")
 
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
 _qp = st.query_params
