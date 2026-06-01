@@ -72,6 +72,11 @@ st.markdown(
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }}
+.topnav {{ pointer-events: auto !important; }}
+.topnav-brand {{ pointer-events: auto !important; cursor: pointer !important; }}
+.topnav-links a {{ pointer-events: auto !important; cursor: pointer !important; }}
+.topnav-inner {{ pointer-events: auto !important; }}
+
 .topnav-inner {{
   max-width: 1400px; margin: 0 auto;
   padding: 0.85rem 2rem;
