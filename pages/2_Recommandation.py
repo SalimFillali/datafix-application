@@ -718,6 +718,28 @@ section[data-testid="stSidebar"] .stCaption {{
     justify-content: center;
     text-align: center;
   }}
+
+  /* Détail film mobile : empiler poster + infos */
+  .detail-grid {{
+    grid-template-columns: 1fr !important;
+  }}
+  .detail-poster img {{
+    max-width: 180px;
+    margin: 0 auto;
+    display: block;
+  }}
+  .cast-card {{
+    width: 76px;
+  }}
+  .cast-photo {{
+    width: 76px; height: 76px;
+  }}
+  .cast-name {{
+    font-size: 0.72rem !important;
+  }}
+  .cast-role {{
+    font-size: 0.66rem !important;
+  }}
 }}
 
 </style>
@@ -1064,6 +1086,8 @@ qp = st.query_params
 sel_title = qp.get("film")
 if isinstance(sel_title, list):
     sel_title = sel_title[0] if sel_title else None
+# Flag: l'utilisateur a explicitement cliqué sur un film
+_user_selected_film = bool(sel_title and sel_title in df["Titre"].values)
 
 if not sel_title or sel_title not in df["Titre"].values:
     sel_title = next((t for t in FALLBACK_FILMS if t in df["Titre"].values),
@@ -1191,8 +1215,9 @@ hero_html = (
 )
 
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
+# Masquer le filtre quand un film est sélectionné
 _qp = st.query_params
-_fdecade = _qp.get("decade", "")
+_fdecade = "" if _user_selected_film else _qp.get("decade", "")
 
 _decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
 
@@ -1217,7 +1242,8 @@ for _d in _decades:
     _active = "active" if _fdecade == str(_d) else ""
     _d_chips += f'<a class="filter-chip {_active}" href="?decade={_d}" target="_self">{_d}s</a>'
 
-st.markdown(_filter_css_str + f'<div class="filter-bar">{_d_chips}</div>', unsafe_allow_html=True)
+if not _user_selected_film:
+    st.markdown(_filter_css_str + f'<div class="filter-bar">{_d_chips}</div>', unsafe_allow_html=True)
 
 
 def apply_filters(frame):
