@@ -587,19 +587,19 @@ st.markdown(
 
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">Sénéchal movies</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_self">
+    <a href="/" target="_top" class="topnav-brand">Sénéchal movies</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
       <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>
-    <a href="/Recommandation" target="_self" class="search-icon-mobile" aria-label="Rechercher">🔍</a>
+    <a href="/Recommandation" target="_top" class="search-icon-mobile" aria-label="Rechercher">🔍</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle" />
     <label for="nav-toggle" class="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>
     </label>
     <div class="topnav-links">
-      <a href="/" target="_self" class="active">Accueil</a>
-      <a href="/Recommandation" target="_self">Recommandation</a>
-      <a href="/A_propos" target="_self">À propos</a>
+      <a href="/" target="_top" class="active">Accueil</a>
+      <a href="/Recommandation" target="_top">Recommandation</a>
+      <a href="/A_propos" target="_top">À propos</a>
     </div>
   </div>
 </div>

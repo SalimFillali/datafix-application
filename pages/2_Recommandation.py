@@ -64,6 +64,16 @@ st.markdown(
 /* on retire les éléments par défaut */
 #MainMenu, footer {{ visibility: hidden; }}
 [data-testid="stHeader"] {{ display: none !important; }}
+[data-testid="stDecoration"] {{ display: none !important; }}
+[data-testid="stStatusWidget"] {{ display: none !important; }}
+/* Forcer la navbar au-dessus de tout, cliquable */
+.topnav {{ z-index: 99999 !important; pointer-events: auto !important; }}
+.topnav * {{ pointer-events: auto !important; }}
+/* Empêcher les overlays Streamlit de bloquer les clics sur la navbar */
+.stApp > div:first-child {{ pointer-events: none !important; }}
+.stApp > div:first-child * {{ pointer-events: auto !important; }}
+[data-testid="stAppViewContainer"] {{ pointer-events: auto !important; }}
+
 
 /* NAVBAR custom (toujours visible) */
 .topnav {{
@@ -1114,8 +1124,8 @@ st.markdown(
     """
 <div class="topnav">
   <div class="topnav-inner">
-    <a href="/" target="_self" class="topnav-brand">Sénéchal movies</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_self">
+    <a href="/" target="_top" class="topnav-brand">Sénéchal movies</a>
+    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
       <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>
     <input type="checkbox" id="nav-toggle" class="nav-toggle" />
@@ -1123,9 +1133,9 @@ st.markdown(
       <span></span><span></span><span></span>
     </label>
     <div class="topnav-links">
-      <a href="/" target="_self">Accueil</a>
-      <a href="/Recommandation" target="_self" class="active">Recommandation</a>
-      <a href="/A_propos" target="_self">À propos</a>
+      <a href="/" target="_top">Accueil</a>
+      <a href="/Recommandation" target="_top" class="active">Recommandation</a>
+      <a href="/A_propos" target="_top">À propos</a>
     </div>
   </div>
 </div>
