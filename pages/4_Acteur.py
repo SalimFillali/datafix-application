@@ -149,6 +149,7 @@ footer, #MainMenu {{ visibility: hidden; }}
 }}
 /* ── HAMBURGER MOBILE ── */
 .nav-toggle {{ display: none; }}
+.search-icon-mobile {{ display: none; }}
 .hamburger {{
   display: none; flex-direction: column; justify-content: center;
   gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px;
@@ -175,6 +176,17 @@ footer, #MainMenu {{ visibility: hidden; }}
   .topnav-links a {{ font-size: 1rem; padding: 0.7rem 1rem; }}
   .nav-toggle:checked ~ .topnav-links {{ display: flex !important; }}
   .topnav-inner {{ position: relative; }}
+  .search-icon-mobile {{
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    text-decoration: none !important;
+    font-size: 1rem; color: #fff !important;
+    margin-right: 0.4rem;
+    transition: background 0.2s;
+  }}
+  .search-icon-mobile:hover {{ background: rgba(245,197,24,0.15); }}
+
 }}
 
 /* ── RESPONSIVE ACTEUR MOBILE ── */
@@ -225,6 +237,7 @@ st.markdown("""
     <form class="topnav-search" action="/Recommandation" method="get" target="_self">
       <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
     </form>
+    <a href="/Recommandation" target="_self" class="search-icon-mobile" aria-label="Rechercher">🔍</a>
     <input type="checkbox" id="nav-toggle" class="nav-toggle" />
     <label for="nav-toggle" class="hamburger" aria-label="Menu">
       <span></span><span></span><span></span>

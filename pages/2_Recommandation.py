@@ -440,6 +440,16 @@ section[data-testid="stSidebar"] .stCaption {{
     padding: 2px 8px; border-radius: 999px;
     border: 1px solid rgba(245,197,24,0.4);
 }}
+.movie .badge-reason {{
+    position: absolute; bottom: 40px; left: 6px; right: 6px;
+    background: rgba(0,0,0,0.72); color: #e2e8f0;
+    font-size: 0.68rem; padding: 3px 8px; border-radius: 8px;
+    text-align: center; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    backdrop-filter: blur(4px);
+    opacity: 0; transition: opacity 0.2s;
+}}
+.movie:hover .badge-reason {{ opacity: 1; }}
 .movie .ribbon {{
     position: absolute; bottom: 0; left: 0; right: 0;
     padding: 8px 10px;
@@ -981,7 +991,7 @@ film = df[df["Titre"] == sel_title].iloc[0]
 # =====================================================================
 # Helpers de rendu
 # =====================================================================
-def card_html(row, rank=None):
+def card_html(row, rank=None, reason: str = ""):
     title = str(row["Titre"]).replace("'", "&#39;")
     href = "?film=" + urllib.parse.quote(str(row["Titre"]))
     # 1) Poster FR depuis le pré-fetch TMDB, 2) fallback dataset, 3) placeholder
@@ -1002,6 +1012,7 @@ def card_html(row, rank=None):
     )
     fact = fun_fact(row)
     rank_html = f"<div class='badge-rank'>#{rank}</div>" if rank else ""
+    reason_html = f"<div class='badge-reason'>{reason}</div>" if reason else ""
     extra_meta = f" · {genres}" if genres else ""
     return (
         f'<a class="movie" href="{href}" target="_self" title="{title}">'
@@ -1009,6 +1020,7 @@ def card_html(row, rank=None):
         f'<img src="{poster}" loading="lazy" alt="{title}">'
         f'{rank_html}'
         f'<div class="badge-note">★ {note:.1f}</div>'
+        f'{reason_html}'
         f'<div class="ribbon">{fact}</div>'
         f'</div>'
         f'<div class="m-title">{title}</div>'
@@ -1017,11 +1029,31 @@ def card_html(row, rank=None):
     )
 
 
-def render_row(title, films, subtitle="", ranked=False):
+def _reco_reason(ref_row, cand_row) -> str:
+    ref_genres = {g.strip() for g in str(ref_row.get("Genres", "")).split("|") if g.strip()}
+    cand_genres = {g.strip() for g in str(cand_row.get("Genres", "")).split("|") if g.strip()}
+    shared = ref_genres & cand_genres
+    ref_year = int(ref_row.get("Année") or 0)
+    cand_year = int(cand_row.get("Année") or 0)
+    same_era = abs(ref_year - cand_year) <= 10 if ref_year and cand_year else False
+    note = float(cand_row.get("Note") or 0)
+    if shared and same_era:
+        return f"{next(iter(shared))} · même époque"
+    if shared:
+        return f"{next(iter(shared))}"
+    if same_era:
+        return "Même époque"
+    if note >= 7.5:
+        return "Très bien noté"
+    return ""
+
+
+def render_row(title, films, subtitle="", ranked=False, reasons=None):
     if films.empty:
         return
     cards = "".join(
-        card_html(r, rank=(i + 1) if ranked else None)
+        card_html(r, rank=(i + 1) if ranked else None,
+                  reason=reasons.get(r["Titre"], "") if reasons else "")
         for i, (_, r) in enumerate(films.iterrows())
     )
     sub = f"<div class='row-sub'>{subtitle}</div>" if subtitle else ""
@@ -1124,6 +1156,66 @@ if _search_q and _search_q.strip():
     st.stop()
 
 st.markdown(hero_html, unsafe_allow_html=True)
+
+# ── Filtres genre + décennie ─────────────────────────────────────────────────
+_qp = st.query_params
+_fgenre = _qp.get("genre", "")
+_fdecade = _qp.get("decade", "")
+
+_all_genres: list[str] = []
+for _g in df["Genres"].dropna():
+    for _part in str(_g).split("|"):
+        _gc = _part.strip()
+        if _gc and _gc not in _all_genres:
+            _all_genres.append(_gc)
+_all_genres = sorted(_all_genres)
+
+_decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
+
+import urllib.parse as _ulp
+
+_filter_css_str = (
+    "<style>"
+    ".filter-bar{display:flex;flex-wrap:wrap;gap:.5rem;padding:1.2rem 2rem .8rem 2rem;align-items:center}"
+    ".filter-label{color:#9ca3af;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-right:.3rem;white-space:nowrap}"
+    ".filter-chip{display:inline-block;padding:.3rem .85rem;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#d1d5db;font-size:.8rem;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}"
+    ".filter-chip:hover{border-color:#F5C518;color:#F5C518}"
+    ".filter-chip.active{background:#F5C518;border-color:#F5C518;color:#0B0B0F;font-weight:700}"
+    ".filter-sep{width:1px;height:1.4rem;background:rgba(255,255,255,.12);margin:0 .3rem}"
+    "@media(max-width:768px){.filter-bar{padding:.8rem 1rem .6rem 1rem;gap:.4rem}.filter-chip{font-size:.72rem;padding:.25rem .65rem}}"
+    "</style>"
+)
+
+_g_chips = '<span class="filter-label">Genre</span>'
+_g_all_active = "active" if not _fgenre else ""
+_g_chips += f'<a class="filter-chip {_g_all_active}" href="?genre=&decade={_fdecade}" target="_self">Tous</a>'
+for _g in _all_genres:
+    _active = "active" if _fgenre == _g else ""
+    _g_chips += f'<a class="filter-chip {_active}" href="?genre={_ulp.quote(_g)}&decade={_fdecade}" target="_self">{_g}</a>'
+
+_d_chips = '<span class="filter-sep"></span><span class="filter-label">Période</span>'
+_d_all_active = "active" if not _fdecade else ""
+_d_chips += f'<a class="filter-chip {_d_all_active}" href="?genre={_ulp.quote(_fgenre)}&decade=" target="_self">Toutes</a>'
+for _d in _decades:
+    _active = "active" if _fdecade == str(_d) else ""
+    _d_chips += f'<a class="filter-chip {_active}" href="?genre={_ulp.quote(_fgenre)}&decade={_d}" target="_self">{_d}s</a>'
+
+st.markdown(_filter_css_str + f'<div class="filter-bar">{_g_chips}{_d_chips}</div>', unsafe_allow_html=True)
+
+
+def apply_filters(frame):
+    if frame is None or frame.empty:
+        return frame
+    result = frame.copy()
+    if _fgenre:
+        result = result[result["Genres"].fillna("").str.contains(_fgenre, case=False, na=False)]
+    if _fdecade:
+        try:
+            _d = int(_fdecade)
+            result = result[(result["Année"] >= _d) & (result["Année"] < _d + 10)]
+        except ValueError:
+            pass
+    return result
 
 
 # =====================================================================
@@ -1247,28 +1339,28 @@ for _block in (recos, tendances, mieux_notes, cultes, annees_90, annees_80, rece
 POSTER_FR_MAP = prefetch_posters_fr(tuple(sorted(_all_ids)))
 
 
-# ─── Rendu des carrousels ────────────────────────────────────
+# ─── Rendu des carrousels ────────────────────────────
 st.markdown("<div id='recommandations'></div>", unsafe_allow_html=True)
-render_row(
-    "Films similaires",
-    recos,
-    subtitle="Genres et notes",
-    ranked=True,
-)
-render_row("Les mieux notés", mieux_notes,
-           subtitle="Sélection critique du catalogue", ranked=True)
-render_row("Comédies cultes", cultes,
-           subtitle="Les incontournables qui ont marqué le cinéma français")
-render_row("Années 90", annees_90,
-           subtitle="Retour vers la décennie dorée de la comédie FR")
-render_row("Années 80", annees_80,
-           subtitle="Le grand boum de la comédie populaire")
 
-if not recents.empty:
-    render_row("Sorties après 2020", recents, subtitle="Films récents dans le catalogue")
+_recos_f = apply_filters(recos)
+_mieux_f = apply_filters(mieux_notes)
+_cultes_f = apply_filters(cultes)
+_90_f = apply_filters(annees_90)
+_80_f = apply_filters(annees_80)
+_recents_f = apply_filters(recents)
+_pepites_f = apply_filters(pepites)
 
-if not pepites.empty:
-    render_row("Pépites cachées", pepites,
-               subtitle="Bien notés, peu connus, à découvrir")
+_reco_reasons = {r["Titre"]: _reco_reason(film, r) for _, r in _recos_f.iterrows()} if not _recos_f.empty else {}
 
+render_row("Films similaires", _recos_f, subtitle="Genres et notes", ranked=True, reasons=_reco_reasons)
+render_row("Les mieux notés", _mieux_f, subtitle="Sélection critique du catalogue", ranked=True)
+render_row("Comédies cultes", _cultes_f, subtitle="Les incontournables qui ont marqué le cinéma français")
+render_row("Années 90", _90_f, subtitle="Retour vers la décennie dorée de la comédie FR")
+render_row("Années 80", _80_f, subtitle="Le grand boum de la comédie populaire")
+
+if not _recents_f.empty:
+    render_row("Sorties après 2020", _recents_f, subtitle="Films récents dans le catalogue")
+
+if not _pepites_f.empty:
+    render_row("Pépites cachées", _pepites_f, subtitle="Bien notés, peu connus, à découvrir")
 st.markdown("<div style='height:3rem'></div>", unsafe_allow_html=True)

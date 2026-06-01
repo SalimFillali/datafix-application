@@ -826,6 +826,34 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+# ─────────────────────────────────────────────────────────────
+# 6b. COMMENT ÇA MARCHE (grand public)
+# ─────────────────────────────────────────────────────────────
+st.markdown(
+    """
+<style>
+.howto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:2rem}
+.howto-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.6rem 1.4rem;display:flex;flex-direction:column;align-items:flex-start;gap:.7rem}
+.howto-step{display:flex;align-items:center;justify-content:center;width:2.4rem;height:2.4rem;border-radius:50%;background:#F5C518;color:#0B0B0F;font-size:1.1rem;font-weight:800;flex-shrink:0}
+.howto-title{font-size:1.05rem;font-weight:700;color:#FFFFFF}
+.howto-desc{font-size:.88rem;color:#9ca3af;line-height:1.55}
+</style>
+<div class="section">
+  <div class="section-eyebrow">Mode d&#39;emploi</div>
+  <h2 class="section-title">Comment &ccedil;a marche&nbsp;?</h2>
+  <p class="section-lead">Pas besoin d&#39;&ecirc;tre geek. En trois clics, trouvez votre prochain coup de c&oelig;ur au cin&eacute;ma.</p>
+  <div class="howto-grid">
+    <div class="howto-card"><div class="howto-step">1</div><div class="howto-title">Choisissez un film que vous aimez</div><div class="howto-desc">Tapez le titre d&#39;un film que vous avez d&eacute;j&agrave; vu et appr&eacute;ci&eacute; dans la barre de recherche.</div></div>
+    <div class="howto-card"><div class="howto-step">2</div><div class="howto-title">L&#39;algorithme analyse votre choix</div><div class="howto-desc">Notre moteur compare les genres, l&#39;&eacute;poque, la note et l&#39;ambiance du film pour trouver ce qui vous ressemble.</div></div>
+    <div class="howto-card"><div class="howto-step">3</div><div class="howto-title">D&eacute;couvrez des films similaires</div><div class="howto-desc">Une s&eacute;lection personnalis&eacute;e de films pr&eacute;sents dans notre catalogue s&#39;affiche instantan&eacute;ment.</div></div>
+    <div class="howto-card"><div class="howto-step">4</div><div class="howto-title">R&eacute;servez au S&eacute;n&eacute;chal</div><div class="howto-desc">Tous les films recommand&eacute;s sont disponibles au Cin&eacute;ma le S&eacute;n&eacute;chal de Gu&eacute;ret. Plus qu&#39;&agrave; venir&nbsp;!</div></div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
 # ─────────────────────────────────────────────────────────────
 # 7. NOS OBJECTIFS (KPI)
 # ─────────────────────────────────────────────────────────────
