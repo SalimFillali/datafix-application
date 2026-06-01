@@ -52,6 +52,12 @@ footer, #MainMenu {{ visibility: hidden; }}
   color: {GOLD} !important; font-weight: 900;
   letter-spacing: 0.18em; font-size: 1rem;
   text-decoration: none !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}}
+.topnav-links a {{
+  pointer-events: auto !important;
+  cursor: pointer !important;
 }}
 .topnav-search input {{
   background: rgba(255,255,255,0.08);
@@ -279,6 +285,13 @@ def fetch_credits(pid: str) -> list[dict]:
     except Exception:
         return []
 
+# Charger le catalogue local
+import pandas as _pd
+from pathlib import Path as _Path
+_DATA = _Path(__file__).resolve().parent.parent / "data" / "df_film.csv"
+_catalogue_df = _pd.read_csv(_DATA)
+_catalogue_titres = set(_catalogue_df["Titre"].str.strip().str.lower().tolist())
+
 person  = fetch_person(str(person_id))
 credits = fetch_credits(str(person_id))
 
@@ -304,15 +317,21 @@ if place:
     meta_parts.append(f"📍 {place}")
 meta_html = " &nbsp;·&nbsp; ".join(meta_parts) if meta_parts else ""
 
-# Film grid — keep best 24 with poster
-films_with_poster = [m for m in credits if m.get("poster_path")][:24]
-films_without     = [m for m in credits if not m.get("poster_path")]
+# Film grid — uniquement les films présents dans le catalogue
+import urllib.parse as _up
+
+films_in_catalogue = [
+    m for m in credits
+    if m.get("poster_path") and (m.get("title") or "").strip().lower() in _catalogue_titres
+]
+films_in_catalogue = films_in_catalogue[:24]
 
 film_cards = ""
-for m in films_with_poster:
-    title = (m.get("title") or "").replace("'", "&#39;")
+for m in films_in_catalogue:
+    raw_title = m.get("title") or ""
+    title = raw_title.replace("'", "&#39;")
     year  = str(m.get("release_date") or "")[:4]
-    href  = f"/Recommandation?search={__import__('urllib.parse', fromlist=['quote']).quote(m.get('title',''))}"
+    href  = f"/Recommandation?film={_up.quote(raw_title)}"
     film_cards += (
         f'<a class="film-card" href="{href}" target="_self" title="{title}">'
         f'<img src="https://image.tmdb.org/t/p/w185{m["poster_path"]}" alt="{title}" loading="lazy">'
@@ -322,10 +341,10 @@ for m in films_with_poster:
     )
 
 if not film_cards:
-    film_cards = '<p style="color:#b8b8b8;">Aucune filmographie disponible.</p>'
+    film_cards = '<p style="color:#b8b8b8;">Cet acteur na pas de films dans notre catalogue.</p>'
 
 films_section = (
-    f'<div class="section-title">Filmographie ({len(films_with_poster)} films)</div>'
+    f'<div class="section-title">Dans notre catalogue ({len(films_in_catalogue)} films)</div>'
     f'<div class="film-grid">{film_cards}</div>'
 )
 
