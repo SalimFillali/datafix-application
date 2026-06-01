@@ -16,16 +16,26 @@ st.set_page_config(
 )
 
 def render_navbar(active_page: str = ""):
-    """Navbar via st.markdown - stable, sans iframe."""
+    """Navbar responsive : liens directs desktop, hamburger custom mobile."""
     active_acc = "active" if active_page == "accueil" else ""
     active_reco = "active" if active_page == "recommandation" else ""
     active_ap = "active" if active_page == "apropos" else ""
     st.markdown(f"""
 <style>
+/* ── Streamlit overrides ── */
+[data-testid="stHeader"],
+[data-testid="stDecoration"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"] {{ display: none !important; }}
+section[data-testid="stSidebar"] {{ display: none !important; }}
+.block-container {{ padding-top: 4.5rem !important; }}
+[data-testid="stAppViewContainer"] > section {{ padding-top: 0 !important; }}
+
+/* ── Navbar ── */
 #sn-navbar {{
   position: fixed; top: 0; left: 0; right: 0;
   height: 60px; z-index: 999999;
-  background: rgba(11,11,15,0.95);
+  background: rgba(11,11,15,0.96);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -37,46 +47,89 @@ def render_navbar(active_page: str = ""):
 #sn-navbar a.sn-brand {{
   color: #F5C518 !important; font-weight: 900; letter-spacing: .18em;
   font-size: 1rem; text-decoration: none !important; cursor: pointer;
-  white-space: nowrap;
+  white-space: nowrap; flex-shrink: 0;
 }}
-#sn-navbar .sn-links {{ display: flex; gap: 1.5rem; }}
-#sn-navbar .sn-links a {{
-  color: #D8D8DC !important; text-decoration: none !important;
-  font-weight: 600; font-size: .9rem;
-  padding: .35rem .75rem; border-radius: 8px; cursor: pointer;
-  white-space: nowrap;
-}}
-#sn-navbar .sn-links a:hover {{ color: #F5C518 !important; background: rgba(245,197,24,.08); }}
-#sn-navbar .sn-links a.active {{ color: #F5C518 !important; background: rgba(245,197,24,.12); }}
 #sn-navbar form input {{
   background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
   border-radius: 20px; padding: .3rem .9rem; color: #fff;
   font-size: .85rem; width: 200px; outline: none;
 }}
 #sn-navbar form input::placeholder {{ color: rgba(255,255,255,.4); }}
-/* Streamlit overrides */
-[data-testid="stHeader"] {{ display: none !important; }}
-[data-testid="stDecoration"] {{ display: none !important; }}
-.block-container {{ padding-top: 4.5rem !important; }}
-/* Empêcher les éléments Streamlit de couvrir la navbar */
-[data-testid="stAppViewContainer"] > section {{ padding-top: 0 !important; }}
+
+/* ── Liens desktop ── */
+#sn-links-desktop {{ display: flex; gap: 1.5rem; align-items: center; }}
+#sn-links-desktop a {{
+  color: #D8D8DC !important; text-decoration: none !important;
+  font-weight: 600; font-size: .9rem;
+  padding: .35rem .75rem; border-radius: 8px; cursor: pointer;
+  white-space: nowrap;
+}}
+#sn-links-desktop a:hover {{ color: #F5C518 !important; background: rgba(245,197,24,.08); }}
+#sn-links-desktop a.active {{ color: #F5C518 !important; background: rgba(245,197,24,.12); }}
+
+/* ── Hamburger mobile (CSS-only) ── */
+#sn-toggle {{ display: none; }}
+#sn-hamburger {{
+  display: none; flex-direction: column; justify-content: center; gap: 5px;
+  cursor: pointer; background: none; border: none;
+  width: 36px; height: 36px; padding: 6px;
+}}
+#sn-hamburger span {{
+  display: block; width: 22px; height: 2px;
+  background: #D8D8DC; border-radius: 2px;
+  transition: all .25s ease; margin: 0 auto;
+}}
+#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(1) {{
+  transform: translateY(7px) rotate(45deg); background: #F5C518;
+}}
+#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(2) {{ opacity: 0; }}
+#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(3) {{
+  transform: translateY(-7px) rotate(-45deg); background: #F5C518;
+}}
+
+/* ── Dropdown mobile ── */
+#sn-dropdown {{
+  display: none; position: fixed; top: 60px; left: 0; right: 0;
+  background: rgba(11,11,15,0.98); border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-direction: column; z-index: 999998; backdrop-filter: blur(14px);
+}}
+#sn-toggle:checked ~ #sn-dropdown {{ display: flex; }}
+#sn-dropdown a {{
+  color: #D8D8DC !important; text-decoration: none !important;
+  font-size: 1rem; font-weight: 600;
+  padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,.05);
+}}
+#sn-dropdown a:hover {{ color: #F5C518 !important; background: rgba(245,197,24,.06); }}
+#sn-dropdown a.active {{ color: #F5C518 !important; }}
+
+/* ── Responsive ── */
 @media(max-width: 768px) {{
   #sn-navbar form {{ display: none; }}
-  #sn-navbar .sn-links {{ gap: .5rem; }}
-  #sn-navbar .sn-links a {{ font-size: .78rem; padding: .3rem .5rem; }}
+  #sn-links-desktop {{ display: none; }}
+  #sn-hamburger {{ display: flex; }}
   #sn-navbar {{ padding: 0 1rem; }}
 }}
 </style>
+
+<input type="checkbox" id="sn-toggle">
 <div id="sn-navbar">
-  <a class="sn-brand" href="/">Sénéchal movies</a>
+  <a class="sn-brand" href="/" target="_self">Sénéchal movies</a>
   <form action="/Recommandation" method="get">
     <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off"/>
   </form>
-  <div class="sn-links">
-    <a class="{active_acc}" href="/">Accueil</a>
-    <a class="{active_reco}" href="/Recommandation">Recommandation</a>
-    <a class="{active_ap}" href="/A_propos">À propos</a>
+  <div id="sn-links-desktop">
+    <a class="{active_acc}" href="/" target="_self">Accueil</a>
+    <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
+    <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
   </div>
+  <label for="sn-toggle" id="sn-hamburger">
+    <span></span><span></span><span></span>
+  </label>
+</div>
+<div id="sn-dropdown">
+  <a class="{active_acc}" href="/" target="_self">Accueil</a>
+  <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
+  <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
 </div>
 """, unsafe_allow_html=True)
 
@@ -838,23 +891,4 @@ for t in EXPRESS_CHOICES:
             else ""
         )
         express_cards_html += (
-            f'<a class="express-card" href="{href}" target="_self">'
-            f'{img_html}'
-            f'<div class="express-card-label">{title}</div>'
-            f'</a>'
-        )
-
-st.markdown(
-    f"""
-<div class="express">
-  <h3>Vous ne savez pas quoi choisir ?</h3>
-  <p>Laissez-vous guider par nos coups de cœur : cliquez sur un film pour obtenir vos recommandations personnalisées.</p>
-  <div class="express-grid">
-    {express_cards_html}
-  </div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
-# ─── FOOTER ─────────────────────
+           
