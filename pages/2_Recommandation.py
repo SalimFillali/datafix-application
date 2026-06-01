@@ -1159,16 +1159,7 @@ st.markdown(hero_html, unsafe_allow_html=True)
 
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
 _qp = st.query_params
-_fgenre = _qp.get("genre", "")
 _fdecade = _qp.get("decade", "")
-
-_all_genres: list[str] = []
-for _g in df["Genres"].dropna():
-    for _part in str(_g).split("|"):
-        _gc = _part.strip()
-        if _gc and _gc not in _all_genres:
-            _all_genres.append(_gc)
-_all_genres = sorted(_all_genres)
 
 _decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
 
@@ -1186,36 +1177,26 @@ _filter_css_str = (
     "</style>"
 )
 
-_g_chips = '<span class="filter-label">Genre</span>'
-_g_all_active = "active" if not _fgenre else ""
-_g_chips += f'<a class="filter-chip {_g_all_active}" href="?genre=&decade={_fdecade}" target="_self">Tous</a>'
-for _g in _all_genres:
-    _active = "active" if _fgenre == _g else ""
-    _g_chips += f'<a class="filter-chip {_active}" href="?genre={_ulp.quote(_g)}&decade={_fdecade}" target="_self">{_g}</a>'
-
-_d_chips = '<span class="filter-sep"></span><span class="filter-label">Période</span>'
+_d_chips = '<span class="filter-label">Période</span>'
 _d_all_active = "active" if not _fdecade else ""
-_d_chips += f'<a class="filter-chip {_d_all_active}" href="?genre={_ulp.quote(_fgenre)}&decade=" target="_self">Toutes</a>'
+_d_chips += f'<a class="filter-chip {_d_all_active}" href="?decade=" target="_self">Toutes</a>'
 for _d in _decades:
     _active = "active" if _fdecade == str(_d) else ""
-    _d_chips += f'<a class="filter-chip {_active}" href="?genre={_ulp.quote(_fgenre)}&decade={_d}" target="_self">{_d}s</a>'
+    _d_chips += f'<a class="filter-chip {_active}" href="?decade={_d}" target="_self">{_d}s</a>'
 
-st.markdown(_filter_css_str + f'<div class="filter-bar">{_g_chips}{_d_chips}</div>', unsafe_allow_html=True)
+st.markdown(_filter_css_str + f'<div class="filter-bar">{_d_chips}</div>', unsafe_allow_html=True)
 
 
 def apply_filters(frame):
     if frame is None or frame.empty:
         return frame
-    result = frame.copy()
-    if _fgenre:
-        result = result[result["Genres"].fillna("").str.contains(_fgenre, case=False, na=False)]
-    if _fdecade:
-        try:
-            _d = int(_fdecade)
-            result = result[(result["Année"] >= _d) & (result["Année"] < _d + 10)]
-        except ValueError:
-            pass
-    return result
+    if not _fdecade:
+        return frame
+    try:
+        _d = int(_fdecade)
+        return frame[(frame["Année"] >= _d) & (frame["Année"] < _d + 10)]
+    except ValueError:
+        return frame
 
 
 # =====================================================================
