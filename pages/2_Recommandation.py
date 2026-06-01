@@ -31,85 +31,69 @@ st.set_page_config(
 )
 
 def render_navbar(active_page: str = ""):
-    """Navbar rendue dans un iframe components.html positionné fixed via CSS parent."""
-    import streamlit.components.v1 as _c
-    acc = "active" if active_page == "accueil" else ""
-    reco = "active" if active_page == "recommandation" else ""
-    ap = "active" if active_page == "apropos" else ""
-
-    # CSS injecté dans le parent pour positionner l'iframe en fixed
-    st.markdown("""
+    """Navbar via st.markdown - stable, sans iframe."""
+    active_acc = "active" if active_page == "accueil" else ""
+    active_reco = "active" if active_page == "recommandation" else ""
+    active_ap = "active" if active_page == "apropos" else ""
+    st.markdown(f"""
 <style>
-/* Positionne le premier iframe de composant custom en fixed navbar */
-div[data-testid="stCustomComponentV1"]:first-of-type {
-  position: fixed !important;
-  top: 0 !important; left: 0 !important; right: 0 !important;
-  width: 100vw !important; height: 60px !important;
-  z-index: 2147483647 !important;
-  border: none !important;
-}
-div[data-testid="stCustomComponentV1"]:first-of-type iframe {
-  position: fixed !important;
-  top: 0 !important; left: 0 !important; right: 0 !important;
-  width: 100vw !important; height: 60px !important;
-  border: none !important;
-}
-/* Compenser la hauteur de la navbar dans le contenu */
-section.main .block-container { padding-top: 4.5rem !important; }
-</style>""", unsafe_allow_html=True)
-
-    nav_html = f"""<!DOCTYPE html><html><head>
-<style>
-* {{ margin:0; padding:0; box-sizing:border-box; }}
-html, body {{ width:100%; height:60px; overflow:hidden; background:rgba(11,11,15,0.95); }}
-nav {{
-  width:100%; height:60px;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 2rem;
-  background:rgba(11,11,15,0.95);
-  backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+#sn-navbar {{
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 60px; z-index: 999999;
+  background: rgba(11,11,15,0.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  pointer-events: auto !important;
 }}
-a.brand {{
-  color:#F5C518; font-weight:900; letter-spacing:.18em;
-  font-size:1rem; text-decoration:none; cursor:pointer; white-space:nowrap;
+#sn-navbar * {{ pointer-events: auto !important; }}
+#sn-navbar a.sn-brand {{
+  color: #F5C518 !important; font-weight: 900; letter-spacing: .18em;
+  font-size: 1rem; text-decoration: none !important; cursor: pointer;
+  white-space: nowrap;
 }}
-form input {{
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-  border-radius:20px; padding:.3rem .9rem; color:#fff;
-  font-size:.85rem; width:200px; outline:none;
+#sn-navbar .sn-links {{ display: flex; gap: 1.5rem; }}
+#sn-navbar .sn-links a {{
+  color: #D8D8DC !important; text-decoration: none !important;
+  font-weight: 600; font-size: .9rem;
+  padding: .35rem .75rem; border-radius: 8px; cursor: pointer;
+  white-space: nowrap;
 }}
-form input::placeholder {{ color:rgba(255,255,255,.4); }}
-.links {{ display:flex; gap:1.5rem; }}
-.links a {{
-  color:#D8D8DC; text-decoration:none; font-weight:600;
-  font-size:.9rem; padding:.35rem .75rem; border-radius:8px;
-  cursor:pointer; white-space:nowrap; transition:all .15s;
+#sn-navbar .sn-links a:hover {{ color: #F5C518 !important; background: rgba(245,197,24,.08); }}
+#sn-navbar .sn-links a.active {{ color: #F5C518 !important; background: rgba(245,197,24,.12); }}
+#sn-navbar form input {{
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px; padding: .3rem .9rem; color: #fff;
+  font-size: .85rem; width: 200px; outline: none;
 }}
-.links a:hover {{ color:#F5C518; background:rgba(245,197,24,.08); }}
-.links a.active {{ color:#F5C518; background:rgba(245,197,24,.12); }}
-@media(max-width:768px) {{
-  form {{ display:none; }}
-  .links {{ gap:.5rem; }}
-  .links a {{ font-size:.78rem; padding:.3rem .5rem; }}
-  nav {{ padding:0 1rem; }}
+#sn-navbar form input::placeholder {{ color: rgba(255,255,255,.4); }}
+/* Streamlit overrides */
+[data-testid="stHeader"] {{ display: none !important; }}
+[data-testid="stDecoration"] {{ display: none !important; }}
+.block-container {{ padding-top: 4.5rem !important; }}
+/* Empêcher les éléments Streamlit de couvrir la navbar */
+[data-testid="stAppViewContainer"] > section {{ padding-top: 0 !important; }}
+@media(max-width: 768px) {{
+  #sn-navbar form {{ display: none; }}
+  #sn-navbar .sn-links {{ gap: .5rem; }}
+  #sn-navbar .sn-links a {{ font-size: .78rem; padding: .3rem .5rem; }}
+  #sn-navbar {{ padding: 0 1rem; }}
 }}
 </style>
-</head><body>
-<nav>
-  <a class="brand" href="/" onclick="top.location.href='/';return false;">Sénéchal movies</a>
-  <form onsubmit="top.location.href='/Recommandation?search='+encodeURIComponent(this.q.value);return false;">
-    <input name="q" placeholder="Rechercher un film…" autocomplete="off"/>
+<div id="sn-navbar">
+  <a class="sn-brand" href="/">Sénéchal movies</a>
+  <form action="/Recommandation" method="get">
+    <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off"/>
   </form>
-  <div class="links">
-    <a class="{acc}" href="/" onclick="top.location.href='/';return false;">Accueil</a>
-    <a class="{reco}" href="/Recommandation" onclick="top.location.href='/Recommandation';return false;">Recommandation</a>
-    <a class="{ap}" href="/A_propos" onclick="top.location.href='/A_propos';return false;">À propos</a>
+  <div class="sn-links">
+    <a class="{active_acc}" href="/">Accueil</a>
+    <a class="{active_reco}" href="/Recommandation">Recommandation</a>
+    <a class="{active_ap}" href="/A_propos">À propos</a>
   </div>
-</nav>
-</body></html>"""
-    _c.html(nav_html, height=60, scrolling=False)
+</div>
+""", unsafe_allow_html=True)
 
 render_navbar("recommandation")
 
