@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 # ──────────────────────────────────────────────────────────────
 # Config
@@ -12,6 +13,67 @@ st.set_page_config(
     page_icon="🎬",
     layout="wide",
 )
+
+def render_navbar(active_page: str = ""):
+    """Injecte la navbar dans le document parent via components.html (contourne les overlays Streamlit)."""
+    import streamlit.components.v1 as _c
+    acc = "sn-active" if active_page == "accueil" else ""
+    reco = "sn-active" if active_page == "recommandation" else ""
+    ap = "sn-active" if active_page == "apropos" else ""
+    html = f"""<!DOCTYPE html><html><head><style>
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{background:transparent}}
+#nav{{position:fixed;top:0;left:0;right:0;z-index:2147483647;
+  background:rgba(11,11,15,0.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}}
+.inner{{max-width:1400px;margin:0 auto;padding:.85rem 2rem;
+  display:flex;align-items:center;justify-content:space-between}}
+a.brand{{color:#F5C518!important;font-weight:900;letter-spacing:.18em;
+  font-size:1rem;text-decoration:none!important;cursor:pointer}}
+.links{{display:flex;gap:2rem}}
+.links a{{color:#D8D8DC!important;text-decoration:none!important;
+  font-weight:600;font-size:.9rem;padding:.4rem .8rem;border-radius:8px;
+  transition:all .2s;cursor:pointer}}
+.links a:hover{{color:#F5C518!important;background:rgba(245,197,24,.08)}}
+.links a.sn-active{{color:#F5C518!important;background:rgba(245,197,24,.12)}}
+form input{{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;padding:.35rem 1rem;color:#fff;font-size:.85rem;width:220px;outline:none}}
+form input::placeholder{{color:rgba(255,255,255,.4)}}
+@media(max-width:768px){{form{{display:none}}.links{{gap:.6rem}}.links a{{font-size:.8rem;padding:.3rem .5rem}}.inner{{padding:.7rem 1rem}}}}
+</style></head><body>
+<div id="nav"><div class="inner">
+  <a class="brand" onclick="top.location.href='/'">Sénéchal movies</a>
+  <form onsubmit="top.location.href='/Recommandation?search='+encodeURIComponent(this.q.value);return false">
+    <input name="q" placeholder="Rechercher un film…" autocomplete="off"/>
+  </form>
+  <div class="links">
+    <a class="{acc}" onclick="top.location.href='/'">Accueil</a>
+    <a class="{reco}" onclick="top.location.href='/Recommandation'">Recommandation</a>
+    <a class="{ap}" onclick="top.location.href='/A_propos'">À propos</a>
+  </div>
+</div></div>
+<script>
+  // Resize iframe to 0 and push nav into parent
+  try {{
+    var existing = window.parent.document.getElementById('sn-nav-inject');
+    if(existing) existing.remove();
+    var d = window.parent.document.createElement('div');
+    d.id = 'sn-nav-inject';
+    d.innerHTML = document.getElementById('nav').outerHTML;
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647';
+    window.parent.document.body.appendChild(d);
+    var s = window.parent.document.createElement('style');
+    s.id = 'sn-nav-style';
+    var es = window.parent.document.getElementById('sn-nav-style');
+    if(es) es.remove();
+    s.textContent = document.querySelector('style').textContent;
+    window.parent.document.head.appendChild(s);
+  }} catch(e) {{}}
+</script>
+</body></html>"""
+    _c.html(html, height=0, scrolling=False)
+
 
 GOLD      = "#F5C518"
 BG_DEEP   = "#0E1117"
@@ -230,27 +292,7 @@ footer, #MainMenu {{ visibility: hidden; }}
 # ──────────────────────────────────────────────────────────────
 # Navbar
 # ──────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="topnav">
-  <div class="topnav-inner">
-    <a href="/" target="_top" class="topnav-brand">Sénéchal movies</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
-      <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
-    </form>
-    <a href="/Recommandation" target="_top" class="search-icon-mobile" aria-label="Rechercher">🔍</a>
-    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
-    <label for="nav-toggle" class="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </label>
-    <div class="topnav-links">
-      <a href="/" target="_top">Accueil</a>
-      <a href="/Recommandation" target="_top">Recommandation</a>
-      <a href="/A_propos" target="_top">À propos</a>
-    </div>
-  </div>
-</div>
-
-""", unsafe_allow_html=True)
+render_navbar("")
 
 # ──────────────────────────────────────────────────────────────
 # Params

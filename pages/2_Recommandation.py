@@ -30,6 +30,105 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+def render_navbar(active_page: str = ""):
+    """Inject navbar directly into parent document via components.html."""
+    import streamlit.components.v1 as _components
+    nav_css = """
+    <style>
+    #sn-topnav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2147483647;
+      background: rgba(11,11,15,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    #sn-topnav .sn-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0.85rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #sn-topnav a.sn-brand {
+      color: #F5C518 !important; font-weight: 900;
+      letter-spacing: 0.18em; font-size: 1rem;
+      text-decoration: none !important; cursor: pointer;
+    }
+    #sn-topnav .sn-links { display: flex; gap: 2rem; }
+    #sn-topnav .sn-links a {
+      color: #D8D8DC !important; text-decoration: none !important;
+      font-weight: 600; font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      padding: 0.4rem 0.8rem; border-radius: 8px;
+      transition: all 0.2s ease; cursor: pointer;
+    }
+    #sn-topnav .sn-links a:hover { color: #F5C518 !important; background: rgba(245,197,24,0.08); }
+    #sn-topnav .sn-links a.sn-active { color: #F5C518 !important; background: rgba(245,197,24,0.12); }
+    #sn-topnav form.sn-search input {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 0.35rem 1rem;
+      color: #fff; font-size: 0.85rem; width: 220px;
+      outline: none;
+    }
+    #sn-topnav form.sn-search input::placeholder { color: rgba(255,255,255,0.4); }
+    @media (max-width: 768px) {
+      #sn-topnav .sn-search { display: none; }
+      #sn-topnav .sn-links { gap: 0.8rem; }
+      #sn-topnav .sn-links a { font-size: 0.8rem; padding: 0.3rem 0.5rem; }
+      #sn-topnav .sn-inner { padding: 0.7rem 1rem; }
+    }
+    </style>
+    """
+    acc_active = 'sn-active' if active_page == 'accueil' else ''
+    reco_active = 'sn-active' if active_page == 'recommandation' else ''
+    ap_active = 'sn-active' if active_page == 'apropos' else ''
+    nav_html = f"""
+    {nav_css}
+    <div id="sn-topnav">
+      <div class="sn-inner">
+        <a class="sn-brand" href="/" onclick="window.top.location.href='/'">Sénéchal movies</a>
+        <form class="sn-search" onsubmit="var q=this.q.value; window.top.location.href='/Recommandation?search='+encodeURIComponent(q); return false;">
+          <input type="text" name="q" placeholder="Rechercher un film…" autocomplete="off" />
+        </form>
+        <div class="sn-links">
+          <a class="{acc_active}" href="/" onclick="window.top.location.href='/'; return false;">Accueil</a>
+          <a class="{reco_active}" href="/Recommandation" onclick="window.top.location.href='/Recommandation'; return false;">Recommandation</a>
+          <a class="{ap_active}" href="/A_propos" onclick="window.top.location.href='/A_propos'; return false;">À propos</a>
+        </div>
+      </div>
+    </div>
+    <script>
+    // Move navbar to parent document body
+    (function() {{
+      try {{
+        var existing = window.parent.document.getElementById('sn-topnav');
+        if (existing) existing.remove();
+        var existingStyle = window.parent.document.getElementById('sn-style');
+        if (existingStyle) existingStyle.remove();
+        
+        // Move style to parent head
+        var styles = document.querySelectorAll('style');
+        styles.forEach(function(s) {{
+          var ps = window.parent.document.createElement('style');
+          ps.id = 'sn-style';
+          ps.textContent = s.textContent;
+          window.parent.document.head.appendChild(ps);
+        }});
+        
+        // Move nav to parent body
+        var nav = document.getElementById('sn-topnav');
+        if (nav) {{
+          var clone = nav.cloneNode(true);
+          window.parent.document.body.appendChild(clone);
+          nav.remove();
+        }}
+      }} catch(e) {{}}
+    }})();
+    </script>
+    """
+    _components.html(nav_html, height=0, scrolling=False)
+
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "df_film.csv"
 PEOPLE_PATH = BASE_DIR / "data" / "df_people_details.csv"
@@ -1120,88 +1219,7 @@ hero_html = (
     '</div>'
     '</div>'
 )
-st.markdown(
-    """
-<div class="topnav">
-  <div class="topnav-inner">
-    <a href="/" target="_top" class="topnav-brand">Sénéchal movies</a>
-    <form class="topnav-search" action="/Recommandation" method="get" target="_top">
-      <input type="text" name="search" placeholder="Rechercher un film…" autocomplete="off" />
-    </form>
-    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
-    <label for="nav-toggle" class="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </label>
-    <div class="topnav-links">
-      <a href="/" target="_top">Accueil</a>
-      <a href="/Recommandation" target="_top" class="active">Recommandation</a>
-      <a href="/A_propos" target="_top">À propos</a>
-    </div>
-  </div>
-</div>
-
-""",
-    unsafe_allow_html=True,
-)
-# =====================================================================
-# MODE RECHERCHE — si ?search= est présent, afficher les résultats et stop
-# =====================================================================
-_search_q = st.query_params.get("search", "")
-if isinstance(_search_q, list):
-    _search_q = _search_q[0] if _search_q else ""
-
-if _search_q and _search_q.strip():
-    _q = _search_q.strip().lower()
-    _hits = df[df["Titre"].str.lower().str.contains(re.escape(_q), na=False)]
-    st.markdown(
-        f"<div style='padding: 5.5rem 2rem 0; max-width:1400px; margin:0 auto;'>"
-        f"<div style='color:#b8b8b8;font-size:.9rem;margin-bottom:1rem;'>"
-        f"Résultats pour <strong style='color:#F5C518;'>« {_search_q} »</strong> "
-        f": {len(_hits)} film(s) trouvé(s)</div></div>",
-        unsafe_allow_html=True,
-    )
-    if _hits.empty:
-        st.info(f"Aucun film ne correspond à « {_search_q} » dans le catalogue.")
-    else:
-        render_row(
-            f"« {_search_q} »",
-            _hits,
-            subtitle=f"{len(_hits)} film(s) trouvé(s)",
-        )
-    st.stop()
-
-
-# =====================================================================
-# MODE DÉCENNIE — si ?decade= est présent, page complète
-# =====================================================================
-_decade_param = st.query_params.get("decade", "")
-if isinstance(_decade_param, list):
-    _decade_param = _decade_param[0] if _decade_param else ""
-
-if _decade_param and _decade_param.strip().isdigit():
-    _d = int(_decade_param.strip())
-    _decade_films = df[(df["Année"] >= _d) & (df["Année"] < _d + 10)]\
-        .sort_values(["Note", "Votes"], ascending=False)
-    _decade_label = f"{_d}s"
-    st.markdown(
-        f"<div style='padding: 5.5rem 2rem 0; max-width:1400px; margin:0 auto;'>"
-        f"<div style='color:#b8b8b8;font-size:.9rem;margin-bottom:1rem;'>"
-        f"Films des <strong style='color:#F5C518;'>{_decade_label}</strong> "
-        f": {len(_decade_films)} film(s) dans le catalogue</div></div>",
-        unsafe_allow_html=True,
-    )
-    if _decade_films.empty:
-        st.info(f"Aucun film des {_decade_label} dans le catalogue.")
-    else:
-        render_row(
-            f"Films des {_decade_label}",
-            _decade_films,
-            subtitle=f"{len(_decade_films)} films · triés par note",
-            ranked=True,
-        )
-    st.stop()
-
-st.markdown(hero_html, unsafe_allow_html=True)
+render_navbar("recommandation")
 
 # ── Filtres genre + décennie ─────────────────────────────────────────────────
 _qp = st.query_params
