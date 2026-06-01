@@ -83,7 +83,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 #sn-links-desktop a.active {{ color: #F5C518 !important; background: rgba(245,197,24,.12); }}
 
 /* ── Hamburger mobile (CSS-only) ── */
-#sn-toggle {{ display: none; }}
 #sn-hamburger {{
   display: none; flex-direction: column; justify-content: center; gap: 5px;
   cursor: pointer; background: none; border: none;
@@ -94,13 +93,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
   background: #D8D8DC; border-radius: 2px;
   transition: all .25s ease; margin: 0 auto;
 }}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(1) {{
-  transform: translateY(7px) rotate(45deg); background: #F5C518;
-}}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(2) {{ opacity: 0; }}
-#sn-toggle:checked ~ #sn-navbar #sn-hamburger span:nth-child(3) {{
-  transform: translateY(-7px) rotate(-45deg); background: #F5C518;
-}}
 
 /* ── Dropdown mobile ── */
 #sn-dropdown {{
@@ -108,7 +100,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
   background: rgba(11,11,15,0.98); border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-direction: column; z-index: 999998; backdrop-filter: blur(14px);
 }}
-#sn-toggle:checked ~ #sn-dropdown {{ display: flex; }}
 #sn-dropdown a {{
   color: #D8D8DC !important; text-decoration: none !important;
   font-size: 1rem; font-weight: 600;
@@ -126,7 +117,6 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 }}
 </style>
 
-<input type="checkbox" id="sn-toggle">
 <div id="sn-navbar">
   <a class="sn-brand" href="/" target="_self">Sénéchal movies</a>
   <form action="/Recommandation" method="get">
@@ -137,9 +127,9 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
     <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
     <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
   </div>
-  <label for="sn-toggle" id="sn-hamburger">
+  <button id="sn-hamburger" onclick="var d=document.getElementById('sn-dropdown');d.style.display=d.style.display==='flex'?'none':''" type="button">
     <span></span><span></span><span></span>
-  </label>
+  </button>
 </div>
 <div id="sn-dropdown">
   <a class="{active_acc}" href="/" target="_self">Accueil</a>
@@ -1409,86 +1399,86 @@ def apply_filters(frame):
 # Bloc détail du film sélectionné
 # =====================================================================
 if _user_selected_film:
- st.markdown("<div id='detail'></div>", unsafe_allow_html=True)
-poster_main = best_poster(film)
-cast_main = best_cast(film, n=6)
-director_main = best_director(film)
+    st.markdown("<div id='detail'></div>", unsafe_allow_html=True)
+    poster_main = best_poster(film)
+    cast_main = best_cast(film, n=6)
+    director_main = best_director(film)
 
-# Cast cards (photo ronde + nom + rôle)
-cast_html = ""
-if cast_main:
-    cards = []
-    for p in cast_main:
-        name = (p["name"] or "").replace("'", "&#39;")
-        role = (p["role"] or "").replace("'", "&#39;")
-        photo = p["photo"]
-        person_id = str(p.get("person_id") or "")
-        if isinstance(photo, str) and photo.startswith("http"):
-            photo_html = f'<img src="{photo}" alt="{name}" loading="lazy">'
-        else:
-            initial = (name[:1] or "?").upper()
-            photo_html = f'<span class="ph-fallback">{initial}</span>'
-        role_html = f"<div class='cast-role'>{role}</div>" if role else ""
-        import urllib.parse as _up
-        if person_id:
-            actor_href = f"/Acteur?person_id={person_id}&name={_up.quote(p['name'] or '')}"
-            cards.append(
-                f"<a class='cast-card' href='{actor_href}' target='_self' style='text-decoration:none;'>"
-                f"<div class='cast-photo'>{photo_html}</div>"
-                f"<div class='cast-name'>{name}</div>"
-                f"{role_html}"
-                f"</a>"
-            )
-        else:
-            cards.append(
-                f"<div class='cast-card'>"
-                f"<div class='cast-photo'>{photo_html}</div>"
-                f"<div class='cast-name'>{name}</div>"
-                f"{role_html}"
-                f"</div>"
-            )
-    cast_html = "<div class='cast-row'>" + "".join(cards) + "</div>"
+    # Cast cards (photo ronde + nom + rôle)
+    cast_html = ""
+    if cast_main:
+        cards = []
+        for p in cast_main:
+            name = (p["name"] or "").replace("'", "&#39;")
+            role = (p["role"] or "").replace("'", "&#39;")
+            photo = p["photo"]
+            person_id = str(p.get("person_id") or "")
+            if isinstance(photo, str) and photo.startswith("http"):
+                photo_html = f'<img src="{photo}" alt="{name}" loading="lazy">'
+            else:
+                initial = (name[:1] or "?").upper()
+                photo_html = f'<span class="ph-fallback">{initial}</span>'
+            role_html = f"<div class='cast-role'>{role}</div>" if role else ""
+            import urllib.parse as _up
+            if person_id:
+                actor_href = f"/Acteur?person_id={person_id}&name={_up.quote(p['name'] or '')}"
+                cards.append(
+                    f"<a class='cast-card' href='{actor_href}' target='_self' style='text-decoration:none;'>"
+                    f"<div class='cast-photo'>{photo_html}</div>"
+                    f"<div class='cast-name'>{name}</div>"
+                    f"{role_html}"
+                    f"</a>"
+                )
+            else:
+                cards.append(
+                    f"<div class='cast-card'>"
+                    f"<div class='cast-photo'>{photo_html}</div>"
+                    f"<div class='cast-name'>{name}</div>"
+                    f"{role_html}"
+                    f"</div>"
+                )
+        cast_html = "<div class='cast-row'>" + "".join(cards) + "</div>"
 
-director_html = (
-    f"<div class='director-line'>Réalisation : <b>{director_main}</b></div>"
-    if director_main else ""
-)
-
-metrics_html = (
-    "<div class='metric-row'>"
-    f"<div class='metric-cell'><div class='v'>★ {float(film['Note']):.1f}</div><div class='l'>Note</div></div>"
-    f"<div class='metric-cell'><div class='v'>{fmt_int(film['Votes'])}</div><div class='l'>Votes</div></div>"
-    f"<div class='metric-cell'><div class='v'>{fmt_money(film['Budget'])}</div><div class='l'>Budget</div></div>"
-    f"<div class='metric-cell'><div class='v'>{fmt_money(film['Recette'])}</div><div class='l'>Recette</div></div>"
-    "</div>"
-)
-
-cast_block = ("<h2>Casting principal</h2>" + cast_html) if cast_html else ""
-
-detail_html = (
-    '<div class="detail-grid">'
-    '<div class="detail-poster">'
-    f'<img src="{poster_main}" alt="{film["Titre"]}">'
-    '</div>'
-    '<div class="detail-info">'
-    '<h2>Synopsis</h2>'
-    f'<p>{overview_main}</p>'
-    f'{director_html}'
-    f'{cast_block}'
-    '<h2>En chiffres</h2>'
-    f'{metrics_html}'
-    '</div>'
-    '</div>'
-)
-st.markdown(detail_html, unsafe_allow_html=True)
-
-if yt_main:
-    st.markdown("<div id='trailer'></div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='row-head'><div class='row-title'>Bande-annonce officielle</div></div>",
-        unsafe_allow_html=True,
+    director_html = (
+        f"<div class='director-line'>Réalisation : <b>{director_main}</b></div>"
+        if director_main else ""
     )
-    st.video(f"https://www.youtube.com/watch?v={yt_main}")
+
+    metrics_html = (
+        "<div class='metric-row'>"
+        f"<div class='metric-cell'><div class='v'>★ {float(film['Note']):.1f}</div><div class='l'>Note</div></div>"
+        f"<div class='metric-cell'><div class='v'>{fmt_int(film['Votes'])}</div><div class='l'>Votes</div></div>"
+        f"<div class='metric-cell'><div class='v'>{fmt_money(film['Budget'])}</div><div class='l'>Budget</div></div>"
+        f"<div class='metric-cell'><div class='v'>{fmt_money(film['Recette'])}</div><div class='l'>Recette</div></div>"
+        "</div>"
+    )
+
+    cast_block = ("<h2>Casting principal</h2>" + cast_html) if cast_html else ""
+
+    detail_html = (
+        '<div class="detail-grid">'
+        '<div class="detail-poster">'
+        f'<img src="{poster_main}" alt="{film["Titre"]}">'
+        '</div>'
+        '<div class="detail-info">'
+        '<h2>Synopsis</h2>'
+        f'<p>{overview_main}</p>'
+        f'{director_html}'
+        f'{cast_block}'
+        '<h2>En chiffres</h2>'
+        f'{metrics_html}'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(detail_html, unsafe_allow_html=True)
+
+    if yt_main:
+        st.markdown("<div id='trailer'></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='row-head'><div class='row-title'>Bande-annonce officielle</div></div>",
+            unsafe_allow_html=True,
+        )
+        st.video(f"https://www.youtube.com/watch?v={yt_main}")
 
 
 # =====================================================================
@@ -1540,7 +1530,8 @@ _pepites_f = apply_filters(pepites)
 
 _reco_reasons = {r["Titre"]: _reco_reason(film, r) for _, r in _recos_f.iterrows()} if not _recos_f.empty else {}
 
-render_row("Films similaires", _recos_f, subtitle="Genres et notes", ranked=True, reasons=_reco_reasons)
+if _user_selected_film:
+    render_row("Films similaires", _recos_f, subtitle="Genres et notes", ranked=True, reasons=_reco_reasons)
 render_row("Les mieux notés", _mieux_f, subtitle="Sélection critique du catalogue", ranked=True)
 render_row("Comédies cultes", _cultes_f, subtitle="Les incontournables qui ont marqué le cinéma français")
 render_row("Années 90", _90_f, subtitle="Retour vers la décennie dorée de la comédie FR")
