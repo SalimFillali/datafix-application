@@ -819,53 +819,6 @@ def render_row(title: str, eyebrow: str, films, ranked: bool = False) -> None:
     )
 
 
-# ─── 4. CARROUSEL "LES INCONTOURNABLES" ──────────────────────
-cultes_rows = []
-seen_ids = set()
-for t in CULTES:
-    r = find_row(df, t)
-    if r is not None and r["id"] not in seen_ids:
-        cultes_rows.append(r)
-        seen_ids.add(r["id"])
-
-render_row("Les incontournables", "À voir absolument", cultes_rows, ranked=False)
-
-# ─── 5. POURQUOI CES FILMS ───────────────────────────────────
-st.markdown(
-    """
-<div class="section">
-  <div class="section-eyebrow">Notre méthode</div>
-  <h2 class="section-title">Pourquoi ces films ?</h2>
-  <div class="method-grid">
-    <div class="method-card">
-      <div class="method-num">01</div>
-      <div class="method-title">Préférences du public</div>
-      <div class="method-text">
-        Analyse des comédies françaises les plus appréciées
-        par tranche d'âge et profil de spectateurs.
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-num">02</div>
-      <div class="method-title">Notes TMDB</div>
-      <div class="method-text">
-        Plus de 800 films notés par les communautés
-        cinéma françaises et internationales.
-      </div>
-    </div>
-    <div class="method-card">
-      <div class="method-num">03</div>
-      <div class="method-title">Habitudes locales</div>
-      <div class="method-text">
-        Une programmation pensée pour un public rural,
-        familial et intergénérationnel.
-      </div>
-    </div>
-  </div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
 
 # ─── 7. RECOMMANDATION EXPRESS ───────────────────────────────
 express_cards_html = ""
