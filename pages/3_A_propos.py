@@ -70,7 +70,7 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 #sn-hamburger {{
   display: none; flex-direction: column; justify-content: center; gap: 5px;
   cursor: pointer; background: none; border: none;
-  width: 36px; height: 36px; padding: 6px;
+  width: 36px; height: 36px; padding: 6px; outline: none;
 }}
 #sn-hamburger span {{
   display: block; width: 22px; height: 2px;
@@ -79,11 +79,15 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
 }}
 
 /* ── Dropdown mobile ── */
+#sn-mobile-menu {{ list-style: none; }}
+#sn-mobile-menu summary {{ list-style: none; }}
+#sn-mobile-menu summary::-webkit-details-marker {{ display: none; }}
 #sn-dropdown {{
-  display: none; position: fixed; top: 60px; left: 0; right: 0;
+  display: flex; position: fixed; top: 60px; left: 0; right: 0;
   background: rgba(11,11,15,0.98); border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-direction: column; z-index: 999998; backdrop-filter: blur(14px);
 }}
+details#sn-mobile-menu:not([open]) #sn-dropdown {{ display: none; }}
 #sn-dropdown a {{
   color: #D8D8DC !important; text-decoration: none !important;
   font-size: 1rem; font-weight: 600;
@@ -111,14 +115,14 @@ section[data-testid="stSidebar"] {{ display: none !important; }}
     <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
     <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
   </div>
-  <button id="sn-hamburger" onclick="var d=document.getElementById('sn-dropdown');d.style.display=d.style.display==='flex'?'none':''" type="button">
-    <span></span><span></span><span></span>
-  </button>
-</div>
-<div id="sn-dropdown">
+  <details id="sn-mobile-menu">
+    <summary id="sn-hamburger"><span></span><span></span><span></span></summary>
+    <div id="sn-dropdown">
   <a class="{active_acc}" href="/" target="_self">Accueil</a>
   <a class="{active_reco}" href="/Recommandation" target="_self">Recommandation</a>
   <a class="{active_ap}" href="/A_propos" target="_self">À propos</a>
+  </div>
+  </details>
 </div>
 """, unsafe_allow_html=True)
 
