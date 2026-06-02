@@ -505,6 +505,7 @@ footer, #MainMenu {{ visibility: hidden; }}
 }}
 .card-poster {{
   width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; background: #1a1b22;
+  filter: brightness(1.18) saturate(1.05);
 }}
 .card-rank {{
   position: absolute; top: 0.6rem; left: 0.6rem;
