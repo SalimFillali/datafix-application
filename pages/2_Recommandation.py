@@ -1264,33 +1264,6 @@ hero_html = (
     '</div>'
 )
 
-# ── Filtres genre + décennie ─────────────────────────────────────────────────
-# Masquer le filtre quand un film est sélectionné
-_qp = st.query_params
-_fdecade = _qp.get("decade", "")
-
-# ── MODE DÉCENNIE : pleine page films d'une décennie ─────────────────────────
-if _decade_mode:
-    _d = int(_raw_decade.strip())
-    _decade_films = df[(df["Année"] >= _d) & (df["Année"] < _d + 10)]        .sort_values(["Note", "Votes"], ascending=False)
-    _back_url = "/Recommandation"
-    st.markdown(
-        f"""<div style="padding:1.5rem 2rem 1rem 2rem">
-        <a href="{_back_url}" target="_self"
-           style="color:#9ca3af;font-size:.85rem;text-decoration:none;">
-           ← Retour
-        </a>
-        <h2 style="color:#F5C518;margin:.5rem 0 .2rem 0;font-size:1.6rem">
-            Films des années {_d}
-        </h2>
-        <p style="color:#9ca3af;font-size:.85rem;margin:0 0 1.5rem 0">
-            {len(_decade_films)} film{"s" if len(_decade_films)>1 else ""} · triés par note
-        </p>
-        </div>""",
-        unsafe_allow_html=True,
-    )
-    render_row(f"Années {_d}", _decade_films, ranked=True)
-    st.stop()
 
 # ── MODE RECHERCHE : résultats de recherche (query param film= sans match exact) ──
 if _search_mode and _raw_query:
@@ -1315,32 +1288,6 @@ if _search_mode and _raw_query:
         st.markdown('<p style="color:#9ca3af;padding:2rem">Aucun film trouvé.</p>', unsafe_allow_html=True)
     st.stop()
 
-_decades = sorted({(int(y) // 10) * 10 for y in df["Année"].dropna().astype(int)}, reverse=True)
-
-import urllib.parse as _ulp
-
-_filter_css_str = (
-    "<style>"
-    ".filter-bar{display:flex;flex-wrap:wrap;gap:.5rem;padding:1.2rem 2rem .8rem 2rem;align-items:center}"
-    ".filter-label{color:#9ca3af;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-right:.3rem;white-space:nowrap}"
-    ".filter-chip{display:inline-block;padding:.3rem .85rem;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#d1d5db;font-size:.8rem;cursor:pointer;text-decoration:none;transition:all .15s;white-space:nowrap}"
-    ".filter-chip:hover{border-color:#F5C518;color:#F5C518}"
-    ".filter-chip.active{background:#F5C518;border-color:#F5C518;color:#0B0B0F;font-weight:700}"
-    ".filter-sep{width:1px;height:1.4rem;background:rgba(255,255,255,.12);margin:0 .3rem}"
-    "@media(max-width:768px){.filter-bar{padding:.8rem 1rem .6rem 1rem;gap:.4rem}.filter-chip{font-size:.72rem;padding:.25rem .65rem}}"
-    "</style>"
-)
-
-_film_param = urllib.parse.quote(sel_title) if sel_title else ""
-_d_chips = '<span class="filter-label">Période</span>'
-_d_all_active = "active" if not _fdecade else ""
-_d_chips += f'<a class="filter-chip {_d_all_active}" href="?decade=" target="_self">Toutes</a>'
-for _d in _decades:
-    _active = "active" if _fdecade == str(_d) else ""
-    _d_chips += f'<a class="filter-chip {_active}" href="?decade={_d}" target="_self">{_d}s</a>'
-
-if not _user_selected_film:
-    st.markdown(_filter_css_str + f'<div class="filter-bar">{_d_chips}</div>', unsafe_allow_html=True)
 
 # ── Barre de recherche native (fiable sous Streamlit) ────────────────────────
 if not _user_selected_film:
@@ -1384,15 +1331,7 @@ div[data-testid="stTextInput"] { margin: .5rem 2rem 1rem 2rem; max-width: 420px;
 
 
 def apply_filters(frame):
-    if frame is None or frame.empty:
-        return frame
-    if not _fdecade:
-        return frame
-    try:
-        _d = int(_fdecade)
-        return frame[(frame["Année"] >= _d) & (frame["Année"] < _d + 10)]
-    except ValueError:
-        return frame
+    return frame
 
 
 # =====================================================================
